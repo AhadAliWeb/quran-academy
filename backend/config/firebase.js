@@ -1,8 +1,7 @@
 const admin = require('firebase-admin');
-const dotenv = require('dotenv');
+const serviceAccount = require('../app-notifications-294ad-firebase-adminsdk-fbsvc-3c95df49e1.json');
 
-dotenv.config();
 admin.initializeApp({
-  credential: admin.credential.cert(process.env.FIREBASE_SERVICE_ACCOUNT)
+  credential: admin.credential.cert(serviceAccount)
 });
 module.exports = admin;
