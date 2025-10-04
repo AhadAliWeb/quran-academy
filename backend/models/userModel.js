@@ -46,10 +46,16 @@ const userSchema = mongoose.Schema(
       type: String,
       enum: ["Male", "Female"]
     },
+    age: {
+      type: Number,
+    },
     status: {
       type: String,
       enum: ["Active", "Demo", "Left"],
       default: "Active"
+    },
+    fcmToken: {
+      type: String
     }
   },
   {

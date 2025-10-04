@@ -8,6 +8,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 3000,
+    host: true,
     proxy: {
       // Proxy requests starting with '/api' to your backend
       '/api': {

@@ -6,12 +6,12 @@ const BadRequestError = require("../errors/bad-request");
 
 // Add new course
 const addNewCourse = asyncHandler(async (req, res) => {
-  const { name } = req.body;
+  const { name, image, pdf } = req.body;
 
   const ifExists = await Course.findOne({ name });
   if (ifExists) throw new BadRequestError("Course with this name already exists");
 
-  const course = await Course.create({ name });
+  const course = await Course.create({ name, image, pdf });
   res
     .status(StatusCodes.CREATED)
     .json({ msg: `Course ${course.name} created successfully` });
@@ -20,12 +20,14 @@ const addNewCourse = asyncHandler(async (req, res) => {
 // Edit course
 const editCourse = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { name } = req.body;
+  const { name, image, pdf } = req.body;
 
   const course = await Course.findById(id);
   if (!course) throw new NotFoundError(`No course found with id: ${id}`);
 
   course.name = name || course.name;
+  course.image = image || course.image;
+  course.pdf = pdf || course.pdf;
   await course.save();
 
   res

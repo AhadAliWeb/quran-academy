@@ -6,6 +6,7 @@ import { adminLinks, studentLinks, teacherLinks} from '../utils/links';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { setUserInfo } from '../slices/userSlice';
+import { requestForToken } from '../config/firebase';
 
 
 const DashboardLayout = ({name}) => {
@@ -13,9 +14,19 @@ const DashboardLayout = ({name}) => {
   const [isMobile, setIsMobile] = useState(false);
   const [navLinks, setNavLinks] = useState([])
 
+
   const user = useSelector(state => state.user)
   const navigate = useNavigate()
   const dispatch = useDispatch()
+
+  const saveToken = async () => {
+    const token = await requestForToken()
+
+    if(token) {
+      await axios.post("/api/v1/users/save-token", { fcmToken: token })
+    }
+
+  }
   
   useEffect(() => {
     
@@ -40,8 +51,10 @@ const DashboardLayout = ({name}) => {
     }
     else {
       if(!user.isApproved) navigate('/confirmation') 
-    }
 
+      }
+      
+      // saveToken()
   }, []);
 
 

@@ -341,6 +341,214 @@ const approveUser = asyncHandler(async(req, res) => {
 
   res.status(StatusCodes.OK).json({msg: "User Approved Successfully"})
 
+});
+
+const getDashboardAnalytics = asyncHandler(async (req, res) => {
+  // Get all analytics in one aggregation pipeline
+  const analytics = await User.aggregate([
+    {
+      $facet: {
+        // Registered students count
+        registeredStudents: [
+          { $match: { role: "student", isApproved: true } },
+          { $count: "count" },
+        ],
+        // Registered teachers count
+        registeredTeachers: [
+          { $match: { role: "teacher", isApproved: true } },
+          { $count: "count" },
+        ],
+        // Unapproved users count
+        unapprovedUsers: [
+          { $match: { isApproved: false } },
+          { $count: "count" },
+        ],
+        // Student gender distribution
+        studentGender: [
+          { $match: { role: "student", isApproved: true, gender: { $exists: true } } },
+          {
+            $group: {
+              _id: "$gender",
+              count: { $sum: 1 },
+            },
+          },
+        ],
+        // Teacher gender distribution
+        teacherGender: [
+          { $match: { role: "teacher", isApproved: true, gender: { $exists: true } } },
+          {
+            $group: {
+              _id: "$gender",
+              count: { $sum: 1 },
+            },
+          },
+        ],
+        // Country-wise distribution for students (top 5 + others)
+        countryDistribution: [
+          {
+            $match: {
+              role: "student",
+              isApproved: true,
+              country: { $exists: true, $ne: null },
+            },
+          },
+          {
+            $group: {
+              _id: "$country",
+              students: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { students: -1 },
+          },
+        ],
+        // Age ranges for students
+        studentAges: [
+          { 
+            $match: { 
+              role: "student", 
+              isApproved: true,
+              age: { $exists: true, $ne: null }
+            } 
+          },
+          { $project: { age: 1 } },
+        ],
+      },
+    },
+  ]);
+
+  const result = analytics[0];
+
+  // Extract counts with default values
+  const registeredStudents = result.registeredStudents[0]?.count || 0;
+  const registeredTeachers = result.registeredTeachers[0]?.count || 0;
+  const unapprovedUsers = result.unapprovedUsers[0]?.count || 0;
+
+  // Calculate student gender ratios
+  const studentGenderData = result.studentGender.reduce((acc, item) => {
+    acc[item._id] = item.count;
+    return acc;
+  }, {});
+
+  const maleStudents = studentGenderData.Male || 0;
+  const femaleStudents = studentGenderData.Female || 0;
+  const totalStudentsWithGender = maleStudents + femaleStudents;
+
+  const studentMaleRatio =
+    totalStudentsWithGender > 0
+      ? Math.round((maleStudents / totalStudentsWithGender) * 100)
+      : 0;
+  const studentFemaleRatio =
+    totalStudentsWithGender > 0
+      ? Math.round((femaleStudents / totalStudentsWithGender) * 100)
+      : 0;
+
+  // Calculate teacher gender ratios
+  const teacherGenderData = result.teacherGender.reduce((acc, item) => {
+    acc[item._id] = item.count;
+    return acc;
+  }, {});
+
+  const maleTeachers = teacherGenderData.Male || 0;
+  const femaleTeachers = teacherGenderData.Female || 0;
+  const totalTeachersWithGender = maleTeachers + femaleTeachers;
+
+  const teacherMaleRatio =
+    totalTeachersWithGender > 0
+      ? Math.round((maleTeachers / totalTeachersWithGender) * 100)
+      : 0;
+  const teacherFemaleRatio =
+    totalTeachersWithGender > 0
+      ? Math.round((femaleTeachers / totalTeachersWithGender) * 100)
+      : 0;
+
+  // Calculate age ranges
+  const ageRanges = {
+    "13-15": 0,
+    "16-18": 0,
+    "19-21": 0,
+    "22-25": 0,
+    "25+": 0,
+  };
+
+  result.studentAges.forEach((student) => {
+    const age = student.age;
+
+    if (age >= 13 && age <= 15) {
+      ageRanges["13-15"]++;
+    } else if (age >= 16 && age <= 18) {
+      ageRanges["16-18"]++;
+    } else if (age >= 19 && age <= 21) {
+      ageRanges["19-21"]++;
+    } else if (age >= 22 && age <= 25) {
+      ageRanges["22-25"]++;
+    } else if (age > 25) {
+      ageRanges["25+"]++;
+    }
+  });
+
+  const ageRangeData = Object.entries(ageRanges).map(([range, count]) => ({
+    range,
+    students: count,
+  }));
+
+  // Process country distribution - top 5 + others
+  const countryData = result.countryDistribution;
+  let processedCountryDistribution = [];
+
+  if (countryData.length > 5) {
+    // Get top 5 countries
+    const top5 = countryData.slice(0, 5).map(item => ({
+      country: item._id,
+      students: item.students,
+    }));
+
+    // Calculate others (sum of remaining countries)
+    const othersCount = countryData.slice(5).reduce((sum, item) => sum + item.students, 0);
+
+    processedCountryDistribution = [
+      ...top5,
+      { country: "Others", students: othersCount }
+    ];
+  } else {
+    // If 5 or fewer countries, return all
+    processedCountryDistribution = countryData.map(item => ({
+      country: item._id,
+      students: item.students,
+    }));
+  }
+
+  // Return all analytics
+  res.status(StatusCodes.OK).json({
+    success: true,
+    data: {
+      registeredStudents,
+      registeredTeachers,
+      unapprovedUsers,
+      studentGenderRatio: {
+        male: studentMaleRatio,
+        female: studentFemaleRatio,
+      },
+      teacherGenderRatio: {
+        male: teacherMaleRatio,
+        female: teacherFemaleRatio,
+      },
+      ageRanges: ageRangeData,
+      countryDistribution: processedCountryDistribution,
+    },
+  });
+});
+
+const saveToken = asyncHandler(async(req, res) => {
+
+    const { fcmToken } = req.body;
+
+    const userId = req.user._id
+
+    await User.findByIdAndUpdate(userId, { fcmToken });
+
+    res.status(StatusCodes.OK).json({ msg: "Token saved Successfully"})
+
 })
 
 module.exports = {
@@ -354,4 +562,6 @@ module.exports = {
   getMe,
   unApprovedUsers,
   approveUser,
+  getDashboardAnalytics,
+  saveToken
 };

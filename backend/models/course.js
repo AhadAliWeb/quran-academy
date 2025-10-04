@@ -6,6 +6,12 @@ const courseSchema = mongoose.Schema(
             type: String,
             required: true
         },
+        image: {
+            type: String,
+        },
+        pdf: {
+            type: String,
+        }
     },
     {
         timestamps: true,

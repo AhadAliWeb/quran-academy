@@ -10,6 +10,8 @@ const {
   getMe,
   unApprovedUsers,
   approveUser,
+  getDashboardAnalytics,
+  saveToken,
 } = require( '../controllers/userController.js');
 const { protect, authorizePermissions } = require('../middleware/authMiddleware.js');
 
@@ -30,6 +32,10 @@ router.get("/me", protect, getMe)
 router.get("/unapproved", protect, authorizePermissions("admin"), unApprovedUsers)
 
 router.get("/abs", addBulkStudents)
+
+router.post("/save-token", protect, saveToken)
+
+router.get("/dashboard-analytics", getDashboardAnalytics)
 
 router.get("/approve/:userId", protect, authorizePermissions("admin"), approveUser)
 

@@ -70,10 +70,19 @@ const EnrolledCourses = () => {
                 {course.course.name}
               </h3>
               
-              {/* Continue Learning Button */}
-              <Link to={`/dashboard/all-lessons/${course._id}`} className="w-full bg-secondary hover:bg-secondary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200">
-                Go to Lessons
-              </Link>
+              <div className='flex flex-col space-y-3'>
+                {/* Continue Learning Button */}
+                <Link to={`/dashboard/all-lessons/${course._id}`} className="w-full bg-secondary hover:bg-secondary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+                  Go to Lessons
+                </Link>
+
+                {
+                  course.course.pdf &&
+                  <Link to={`${course.course.pdf}`} className="w-full bg-secondary hover:bg-secondary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+                  Download Book
+                  </Link>
+                }
+              </div>
             </div>
           </div>
         ))}

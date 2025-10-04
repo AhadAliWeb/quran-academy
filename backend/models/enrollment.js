@@ -18,20 +18,27 @@ const enrollmentSchema = mongoose.Schema(
       required: true,
     },
     schedule: {
-      days: {
-        type: [String], // ["Monday", "Tuesday"]
-        required: true,
-      },
-      time: {
-        type: String,  // "09:00" or "14:30"
-        required: true,
-      },
-      duration: {
-        type: Number,
-        required: true,
-      }
-    },
-  },
+        days: {
+          type: [String], // ["Monday", "Tuesday"]
+          required: true,
+        },
+        time: {
+          type: String,  // "09:00" or "14:30"
+          required: true,
+        },
+        duration: {
+          type: Number,
+          required: true,
+        },
+        notificationSend: {
+          type: Boolean,
+          default: false
+        },
+        lastNotificationSent: {
+          type: Date  // ADD THIS - tracks last notification date
+        }
+    }
+},
   { timestamps: true }
 );
 

@@ -17,6 +17,7 @@ const lessonRoutes = require("./routes/lessonRoutes.js")
 // middleware
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
+const { startNotificationJob } = require('./jobs/classNotificationJob.js');
 
 const port = process.env.PORT || 5000;
 
@@ -51,7 +52,11 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+
+startNotificationJob()
+
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
+
 
 app.listen(port, () => console.log(`Server started on port ${port}`));

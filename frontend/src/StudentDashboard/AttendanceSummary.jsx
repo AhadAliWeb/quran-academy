@@ -23,7 +23,6 @@ const AttendanceSummary = () => {
         late: item.lateCount,
         excused: item.excusedCount,
         total: item.onlineCount + item.offlineCount + item.lateCount + item.excusedCount,
-        courseId: item.course._id,
         attendanceRate: Math.round(((item.onlineCount + item.lateCount) / (item.onlineCount + item.offlineCount + item.lateCount + item.excusedCount)) * 100)
       }));
 

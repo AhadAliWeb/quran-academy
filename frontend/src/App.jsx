@@ -11,7 +11,6 @@ import AppLayout from './components/AppLayout.jsx'
 
 function App() {
 
-
   const router = createBrowserRouter([
           {
             path: "/",

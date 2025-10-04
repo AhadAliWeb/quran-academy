@@ -301,7 +301,7 @@ const handleDelete = async (studentId) => {
               {students.map((_student) => {
                 const student = formatStudentData(_student)
                 return (
-                  <tr key={student._id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={student.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{student.name}</div>
