@@ -6,7 +6,7 @@ import { adminLinks, studentLinks, teacherLinks} from '../utils/links';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { setUserInfo } from '../slices/userSlice';
-import { requestForToken } from '../config/firebase';
+// import { requestForToken } from '../config/firebase';
 
 
 const DashboardLayout = ({name}) => {
@@ -19,14 +19,14 @@ const DashboardLayout = ({name}) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const saveToken = async () => {
-    const token = await requestForToken()
+  // const saveToken = async () => {
+  //   const token = await requestForToken()
 
-    if(token) {
-      await axios.post("/api/v1/users/save-token", { fcmToken: token })
-    }
+  //   if(token) {
+  //     await axios.post("/api/v1/users/save-token", { fcmToken: token })
+  //   }
 
-  }
+  // }
   
   useEffect(() => {
     
