@@ -20,7 +20,7 @@ export default function StudentList() {
   // });
 
   const getEnrollments = () => {
-    axios.get(`/api/v1/enrollment/teacher-enrollments/${user.id}`).then(res => setEnrollments(res.data.enrollments)).catch(err => console.log(err))
+    axios.get(`/api/v1/enrollment/teacher-enrollments/${user.id}`).then(res => setEnrollments(res.data.enrollments || [])).catch(err => console.log(err))
   }
 
   console.log(enrollments)

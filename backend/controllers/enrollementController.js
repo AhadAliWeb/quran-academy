@@ -273,6 +273,9 @@ const getEnrollmentByTeacher = asyncHandler(async(req, res) => {
 
   const { teacherId } = req.params;
   const enrollments = await Enrollment.find({ teacher: teacherId }).select("-schedule").populate("course", "name").populate("student", "name status")
+
+  if(enrollments.length === 0) throw new NotFoundError("Enrollments Not Found")
+
   res.status(StatusCodes.OK).json({msg: "Enrollments Found Successfully", enrollments})
 });
 
