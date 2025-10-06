@@ -49,8 +49,23 @@ const MonthlyReports = () => {
     getReports(nextPage);
   };
 
-  const handleReportClick = (reportId) => {
-    console.log('Navigating to report:', reportId);
+  const handleReportClick = async (reportId) => {
+    try {
+      const response = await axios.get(`/api/v1/report/${reportId}/pdf`, {
+        responseType: "blob",
+      });
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Monthly_Report_${reportId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
