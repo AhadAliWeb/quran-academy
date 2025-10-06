@@ -161,10 +161,10 @@ export default function StudentList() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#009689] text-white text-sm font-medium rounded-lg hover:bg-[#00d5be] transition-colors">
+                  <Link to={`/teacher/dashboard/monthly-report/${enrollment._id}`} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#009689] text-white text-sm font-medium rounded-lg hover:bg-[#00d5be] transition-colors">
                     <FileText className="w-4 h-4" />
                     <span>Add Monthly Report</span>
-                  </button>
+                  </Link>
                   <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#00d5be] text-white text-sm font-medium rounded-lg hover:bg-[#009689] transition-colors">
                     <ClipboardCheck className="w-4 h-4" />
                     <span>General Evaluation</span>
