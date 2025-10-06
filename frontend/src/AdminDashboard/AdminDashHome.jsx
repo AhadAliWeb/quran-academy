@@ -42,35 +42,35 @@ const AdminDashboardHome = () => {
   ]);
 
 
-  // const getAnalytics = () => {
-  //   axios.get("/api/v1/users/dashboard-analytics").then(res => {
+  const getAnalytics = () => {
+    axios.get("/api/v1/users/dashboard-analytics").then(res => {
 
-  //     const { registeredStudents, registeredTeachers, unapprovedUsers, countryDistribution, studentGenderRatio, teacherGenderRatio, ageRanges } = res.data.data
+      const { registeredStudents, registeredTeachers, unapprovedUsers, countryDistribution, studentGenderRatio, teacherGenderRatio, ageRanges } = res.data.data
 
-  //     setStats({ registeredStudents, registeredTeachers, unapprovedUsers, studentMaleRatio: studentGenderRatio.male, studentFemaleRatio: studentGenderRatio.female, teacherMaleRatio: teacherGenderRatio.male, teacherFemaleRatio: teacherGenderRatio.female})
+      setStats({ registeredStudents, registeredTeachers, unapprovedUsers, studentMaleRatio: studentGenderRatio.male, studentFemaleRatio: studentGenderRatio.female, teacherMaleRatio: teacherGenderRatio.male, teacherFemaleRatio: teacherGenderRatio.female})
 
-  //     setStudentGenderData([
-  //         { name: 'Male', value: studentGenderRatio.male, color: '#009689' },
-  //         { name: 'Female', value: studentGenderRatio.female, color: '#00d5be' }
-  //       ])
+      setStudentGenderData([
+          { name: 'Male', value: studentGenderRatio.male, color: '#009689' },
+          { name: 'Female', value: studentGenderRatio.female, color: '#00d5be' }
+        ])
 
-  //     setTeacherGenderData([
-  //       { name: 'Male', value: teacherGenderRatio.male, color: '#009689' },
-  //       { name: 'Female', value: teacherGenderRatio.female, color: '#00d5be' }
-  //     ])
+      setTeacherGenderData([
+        { name: 'Male', value: teacherGenderRatio.male, color: '#009689' },
+        { name: 'Female', value: teacherGenderRatio.female, color: '#00d5be' }
+      ])
 
-  //     setAgeRangeData(ageRanges)
+      setAgeRangeData(ageRanges)
 
-  //     setCountryData(countryDistribution)
+      setCountryData(countryDistribution)
 
 
 
-  //   }).catch(err => console.log(err))
-  // }
+    }).catch(err => console.log(err))
+  }
 
-  // useEffect(() => {
-  //   getAnalytics()
-  // }, [])
+  useEffect(() => {
+    getAnalytics()
+  }, [])
 
   const StatCard = ({ icon: Icon, title, value, subtitle, gradient }) => (
     <div className={`bg-gradient-to-br ${gradient} rounded-xl shadow-lg p-6 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-xl`}>
