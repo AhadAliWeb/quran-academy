@@ -11,7 +11,30 @@ const courseSchema = mongoose.Schema(
         },
         pdf: {
             type: String,
-        }
+        },
+        reportFields: [
+            {
+                name: {
+                    type: String,
+                    required: true
+                },
+                label: {
+                    type: String,
+                    required: true
+                },
+                type: {
+                    type: String,
+                    required: true
+                },
+                options: {
+                    type: [String],
+                },
+                required: {
+                    type: Boolean,
+                    required: true
+                }
+            }
+        ]
     },
     {
         timestamps: true,

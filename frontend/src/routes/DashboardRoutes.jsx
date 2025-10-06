@@ -12,10 +12,13 @@ import AttendanceSummary from "../StudentDashboard/AttendanceSummary";
 import EnrolledCourses from "../StudentDashboard/EnrolledCourses";
 import LessonDetails from "../StudentDashboard/LessonDetails";
 import StudentDashHome from "../StudentDashboard/StudentDashHome";
-import Classes from "../TeacherDashboard/Classes";
+import TodayClasses from "../TeacherDashboard/TodayClasses";
 import ClassStudents from "../TeacherDashboard/ClassStudents";
 import DisplayLesson from "../TeacherDashboard/DisplayLesson";
 import TeacherDashHome from "../TeacherDashboard/TeacherDashHome";
+import MonthlyReport from "../TeacherDashboard/MonthlyReport";
+import GeneralEvaluation from "../TeacherDashboard/GeneralEvaluation";
+import MonthlyReports from "../StudentDashboard/MonthlyReports";
 
 
 export const StudentDashboardRoutes = [
@@ -30,6 +33,10 @@ export const StudentDashboardRoutes = [
             {
                 path: "enrolled-courses",
                 element: <EnrolledCourses />
+            },
+            {
+                path: "monthly-reports/:enrollmentId",
+                element: <MonthlyReports />,
             },
             {
                 path: "all-lessons/:enrollmentId",
@@ -66,11 +73,19 @@ export const TeacherDashboardRoutes = [
             },
             {
                 path: "today-classes",
-                element: <Classes />
+                element: <TodayClasses />
+            },
+            {
+                path: "general-evaluation",
+                element: <GeneralEvaluation />
             },
             {
                 path: "display-lesson/:enrollmentId",
                 element: <DisplayLesson />
+            },
+            {
+                path: "monthly-report/:enrollmentId",
+                element: <MonthlyReport />
             }
         ]
     }

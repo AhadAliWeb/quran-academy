@@ -12,6 +12,7 @@ const enrollmentRoutes = require('./routes/enrollmentRoutes.js')
 const attendanceRoutes = require('./routes/attendanceRoutes.js')
 const uploadRoutes = require("./routes/uploadRoutes.js")
 const lessonRoutes = require("./routes/lessonRoutes.js")
+const reportRoutes = require("./routes/reportRoutes.js");
 
 
 // middleware
@@ -38,6 +39,7 @@ app.use('/api/v1/enrollment', enrollmentRoutes)
 app.use('/api/v1/attendance', attendanceRoutes)
 app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/lesson', lessonRoutes)
+app.use('/api/v1/report', reportRoutes)
 
 if (process.env.NODE_ENV === 'production') {
   const __dirname = path.resolve();
@@ -54,7 +56,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 
-startNotificationJob()
+// startNotificationJob()
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

@@ -266,7 +266,28 @@ const displayStudentEnrollments = asyncHandler(async(req, res) => {
   if(courses.length === 0) throw new NotFoundError("No Courses Found")
 
     res.status(StatusCodes.OK).json({msg: "Courses Founded Successfully", courses})
+});
+
+const getEnrollmentByTeacher = asyncHandler(async(req, res) => {
+
+
+  const { teacherId } = req.params;
+  const enrollments = await Enrollment.find({ teacher: teacherId }).select("-schedule").populate("course", "name").populate("student", "name status")
+  res.status(StatusCodes.OK).json({msg: "Enrollments Found Successfully", enrollments})
+});
+
+
+const getReportFields = asyncHandler(async (req, res) => {
+
+  const { id } = req.params;
+
+  const enrollment = await Enrollment.findById(id).select("course").populate("course", "reportFields")
+
+  if(!enrollment) throw new NotFoundError("Course Not Found")
+
+  res.status(StatusCodes.OK).json({msg: "Fields received Successfully", course: enrollment.course})
+
 })
 
 
-module.exports = { AddEnrollment, AllEnrollments, addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments }
+module.exports = { AddEnrollment, AllEnrollments, addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments, getEnrollmentByTeacher, getReportFields }

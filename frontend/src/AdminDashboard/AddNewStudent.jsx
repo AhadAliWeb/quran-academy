@@ -13,6 +13,7 @@ const AddStudentPage = () => {
     studentName: '',
     email: '',
     password: '',
+    age: '',
     phoneNumber: '',
     country: '',
     gender: '',
@@ -49,6 +50,15 @@ const AddStudentPage = () => {
       }
     },
     {
+      id: 'password',
+      label: 'Password',
+      type: 'password',
+      icon: Lock,
+      placeholder: 'Enter password',
+      required: true,
+      validation: (value) => value.length < 6 ? 'Password must be at least 6 characters' : null
+    },
+    {
       id: 'fees',
       label: 'Fees',
       type: 'number',
@@ -57,13 +67,13 @@ const AddStudentPage = () => {
       required: true,
     },
     {
-      id: 'password',
-      label: 'Password',
-      type: 'password',
-      icon: Lock,
-      placeholder: 'Enter password',
+      id: 'age',
+      label: 'Age',
+      type: 'number',
+      icon: User,
+      placeholder: 'Enter age',
       required: true,
-      validation: (value) => value.length < 6 ? 'Password must be at least 6 characters' : null
+      validation: (value) => value.length < 1 ? 'Please enter a valid age' : null
     },
     {
       id: 'phoneNumber',
@@ -224,7 +234,7 @@ const AddStudentPage = () => {
             {/* Form Fields Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {formFields.map(field => (
-                <div key={field.id} className={field.id === 'studentName' || field.id === 'email' || field.id === 'fees' ? 'md:col-span-2' : ''}>
+                <div key={field.id} className={field.id === 'studentName' || field.id === 'email' ? 'md:col-span-2' : ''}>
                   {renderField(field)}
                 </div>
               ))}

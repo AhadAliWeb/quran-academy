@@ -19,7 +19,9 @@ const EnrolledCourses = () => {
   }
 
   useEffect(() => {
-    getEnrollments()
+    if(user.id) {
+      getEnrollments()
+    }
   }, [user.id])
 
   return (
@@ -48,7 +50,8 @@ const EnrolledCourses = () => {
 
       {/* Courses Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {enrolledCourses.map((course) => (
+        { enrolledCourses.length > 0 ?
+          enrolledCourses.map((course) => (
           <div
             key={course._id}
             className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300 cursor-pointer"
@@ -82,15 +85,15 @@ const EnrolledCourses = () => {
                   Download Book
                   </Link>
                 }
+                <Link to={`/dashboard/monthly-reports/${course._id}`} className="w-full bg-secondary hover:bg-secondary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+                  Monthly Reports
+                </Link>
               </div>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Empty State (shown when no courses) */}
-      {enrolledCourses.length === 0 && (
-        <div className="text-center py-16">
+        ))
+          :
+          <div className="text-center py-16">
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -102,7 +105,9 @@ const EnrolledCourses = () => {
             Browse Courses
           </button>
         </div>
-      )}
+        }
+      </div>
+
     </div>
   );
 };

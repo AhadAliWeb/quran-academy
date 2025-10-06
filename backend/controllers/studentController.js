@@ -7,7 +7,7 @@ const BadRequestError = require("../errors/bad-request");
 
 // Create a new student
 const createStudent = asyncHandler(async (req, res) => {
-  const { studentName, email, password, fees, phoneNumber, country, gender } = req.body;
+  const { studentName, email, password, fees, phoneNumber, country, gender, age } = req.body;
 
   console.log(req.body)
 
@@ -25,6 +25,7 @@ const createStudent = asyncHandler(async (req, res) => {
     phoneNumber,
     gender,
     country,
+    age,
   });
 
   await user.save()
