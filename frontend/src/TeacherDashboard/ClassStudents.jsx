@@ -23,6 +23,8 @@ export default function StudentList() {
     axios.get(`/api/v1/enrollment/teacher-enrollments/${user.id}`).then(res => setEnrollments(res.data.enrollments)).catch(err => console.log(err))
   }
 
+  console.log(enrollments)
+
   useEffect(() => {
     if(user.id) {
       getEnrollments()
@@ -107,7 +109,8 @@ export default function StudentList() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {enrollments.map((enrollment, index) => (
+                { enrollments.length > 0 &&
+                enrollments.map((enrollment, index) => (
                   <tr key={enrollment._id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{enrollment.student.name}</td>
@@ -138,7 +141,8 @@ export default function StudentList() {
 
           {/* Mobile Cards */}
           <div className="md:hidden divide-y divide-gray-200">
-            {enrollments.map((enrollment, index) => (
+            { enrollments.length > 0 &&
+            enrollments.map((enrollment, index) => (
               <div key={enrollment._id} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex justify-between items-start mb-3">
                   <div>
