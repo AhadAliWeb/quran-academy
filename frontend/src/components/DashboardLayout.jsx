@@ -6,7 +6,8 @@ import { adminLinks, studentLinks, teacherLinks} from '../utils/links';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { setUserInfo } from '../slices/userSlice';
-// import { requestForToken } from '../config/firebase';
+import { requestNotificationPermission, setupForegroundListener } from '../utils/fcmSetup';
+import { requestFCMToken } from '../config/firebase';
 
 
 const DashboardLayout = ({name}) => {
@@ -19,15 +20,30 @@ const DashboardLayout = ({name}) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  // const saveToken = async () => {
-  //   const token = await requestForToken()
 
-  //   if(token) {
-  //     await axios.post("/api/v1/users/save-token", { fcmToken: token })
-  //   }
+  const getTokenAndUpdateBackend = async () => {
 
-  // }
-  
+    try {
+      const token = await requestFCMToken()
+
+      const storedToken = localStorage.getItem("fcmToken")
+
+      if(token !== storedToken) {
+
+        await axios.post("/api/v1/users/save-token", {fcmToken: token}).then(res => console.log(res)).catch(err => console.log(err));
+
+        localStorage.setItem("fcmToken", token)
+      }
+
+      console.log(token)
+
+    } catch (error) {
+      
+    }
+
+  }
+
+
   useEffect(() => {
     
     if(!user.email) {
@@ -53,8 +69,9 @@ const DashboardLayout = ({name}) => {
       if(!user.isApproved) navigate('/confirmation') 
 
       }
+    
+    getTokenAndUpdateBackend()
       
-      // saveToken()
   }, []);
 
 

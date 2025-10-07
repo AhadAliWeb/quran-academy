@@ -25,10 +25,6 @@ function App() {
             element: <Register />
           },
           {
-            path: "/outlet",
-            element: <DashboardLayout />
-          },
-          {
             path: "/confirmation",
             element: <Confirmation />
           },
