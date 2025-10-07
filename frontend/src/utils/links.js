@@ -42,12 +42,6 @@ const teacherLinks = [
         to: `${TEACHER_BASE_PATH}/class-students`,
     },
     {
-        id: "Attandance",
-        text: "Attandance",
-        icon: CheckCircle,
-        to: `${TEACHER_BASE_PATH}/attandance`
-    },
-    {
         id: "Today's Classes",
         text: "Today's Classes",
         icon: CheckCircle,
