@@ -9,13 +9,14 @@ require("pdfkit-table")
 
 // @desc    Create a new report
 // @route   POST /api/reports
+// @access  Teacher/Admin
 const createReport = asyncHandler(async (req, res) => {
-  // @access  Teacher/Admin
-  const { enrollmentId, data } = req.body;
+  const { enrollmentId, data, type } = req.body;
   
   const month = new Date().toISOString().slice(0, 7)
 
   const enrollment = await Enrollment.findById(enrollmentId)
+
 
   if(!enrollment) throw new NotFoundError("Course Not Found")
 
@@ -29,6 +30,7 @@ const createReport = asyncHandler(async (req, res) => {
     teacher: enrollment.teacher,
     course: enrollment.course,
     month,
+    type,
     data
   });
 
@@ -179,7 +181,7 @@ const downloadReportPdf = asyncHandler(async (req, res) => {
     .fontSize(28)
     .fillColor(colors.primary)
     .font('Helvetica-Bold')
-    .text("MONTHLY PROGRESS REPORT", { align: "center" });
+    .text(`MONTHLY ${report.type.toUpperCase()} REPORT`, { align: "center" });
   
   doc.moveDown(0.5);
   doc

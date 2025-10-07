@@ -76,7 +76,7 @@ export const TeacherDashboardRoutes = [
                 element: <TodayClasses />
             },
             {
-                path: "general-evaluation",
+                path: "general-evaluation/:enrollmentId",
                 element: <GeneralEvaluation />
             },
             {

@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { Save, FileText } from 'lucide-react';
+import { useParams } from 'react-router';
+import axios from 'axios';
+
 
 const GeneralEvaluation = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +13,10 @@ const GeneralEvaluation = () => {
     remarks: ''
   });
 
+  const [submitting, setSubmitting] = useState(false)
+
+  const { enrollmentId } = useParams()
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -17,9 +24,28 @@ const GeneralEvaluation = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    console.log('Form submitted:', formData);
-    alert('Evaluation saved successfully!');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+
+      const payload = {
+        enrollmentId,
+        data: formData,
+        type: "evaluation"
+      };
+
+      await axios.post("/api/v1/report", payload);
+
+      alert("Report submitted successfully!");
+      setFormValues({});
+    } catch (err) {
+      console.error("Failed to submit report", err);
+      alert("Failed to submit report");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const evaluationFields = [
@@ -93,10 +119,18 @@ const GeneralEvaluation = () => {
           <div className="mt-8 flex justify-end">
             <button
               onClick={handleSubmit}
+              disabled={submitting}
               className="flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-white font-semibold px-6 md:px-8 py-2.5 md:py-3 rounded-lg transition-colors shadow-md hover:shadow-lg text-sm md:text-base"
             >
-              <Save className="w-4 h-4 md:w-5 md:h-5" />
-              Save Evaluation
+              {submitting ? 
+                  `Saving ...`    
+              : (
+                  <>
+                  <Save className="w-4 h-4 md:w-5 md:h-5" />
+                  Save Evaluation
+                  </>
+                )
+              }
             </button>
           </div>
         </div>

@@ -127,7 +127,7 @@ export default function StudentList() {
                           <FileText className="w-4 h-4" />
                           <span>Monthly Report</span>
                         </Link>
-                        <Link to={`/teacher/dashboard/general-evaluation`} className="inline-flex items-center gap-1 px-3 py-2 bg-[#00d5be] text-white text-xs font-medium rounded-lg hover:bg-[#009689] transition-colors">
+                        <Link to={`/teacher/dashboard/general-evaluation/${enrollment._id}`} className="inline-flex items-center gap-1 px-3 py-2 bg-[#00d5be] text-white text-xs font-medium rounded-lg hover:bg-[#009689] transition-colors">
                           <ClipboardCheck className="w-4 h-4" />
                           <span>Evaluation</span>
                         </Link>
@@ -165,10 +165,10 @@ export default function StudentList() {
                     <FileText className="w-4 h-4" />
                     <span>Add Monthly Report</span>
                   </Link>
-                  <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#00d5be] text-white text-sm font-medium rounded-lg hover:bg-[#009689] transition-colors">
+                  <Link to={`/teacher/dashboard/general-evaluation/${enrollment._id}`} className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#00d5be] text-white text-sm font-medium rounded-lg hover:bg-[#009689] transition-colors">
                     <ClipboardCheck className="w-4 h-4" />
                     <span>General Evaluation</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}

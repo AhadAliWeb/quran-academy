@@ -23,6 +23,10 @@ const reportSchema = new mongoose.Schema({
     required: true,
   },
   month: { type: String, required: true }, // e.g. "2025-10"
+  type: {
+    type: String,
+    enum: ["progress", "evaluation"]
+  },
   data: {
     type: Map,
     of: mongoose.Schema.Types.Mixed // flexible: can be string, number, etc.

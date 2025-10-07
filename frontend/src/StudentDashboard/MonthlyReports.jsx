@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FileText, ChevronRight } from 'lucide-react';
+import { FileText, ChevronRight, Dot } from 'lucide-react';
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
@@ -8,7 +8,7 @@ const MonthlyReports = () => {
   const [reports, setReports] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -101,9 +101,14 @@ const MonthlyReports = () => {
                   <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
                     <FileText className="w-6 h-6 text-secondary" />
                   </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-secondary group-hover:translate-x-1 transition-all" />
+
+                  <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
+                    <div className="w-2 h-2 rounded-full bg-secondary flex-shrink-0"></div>
+                    <span className="text-sm font-medium text-gray-700 leading-none capitalize">{report.type}</span>
+                  </div>
                 </div>
-                <div>
+                
+                <div className="mb-4">
                   <h3 className="text-xl font-semibold text-gray-800 mb-1">
                     {months[report.month.split("-")[1] - 1]}
                   </h3>
@@ -112,6 +117,7 @@ const MonthlyReports = () => {
                   </p>
                 </div>
               </div>
+              
               <div className="h-1 bg-gradient-to-r from-primary to-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
             </div>
           ))}

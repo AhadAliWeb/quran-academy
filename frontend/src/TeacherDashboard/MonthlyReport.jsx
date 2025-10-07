@@ -34,17 +34,18 @@ const MonthlyReport = () => {
     }));
   };
 
+
   // Handle form submit for reports
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
-      // Example: teacher and student IDs might come from auth or enrollment data
 
       const payload = {
         enrollmentId,
-        data: formValues
+        data: formValues,
+        type: "progress"
       };
 
       await axios.post("/api/v1/report", payload);
