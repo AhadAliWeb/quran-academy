@@ -19,7 +19,7 @@ const notificationRoutes = require("./routes/notificationRoutes.js")
 // middleware
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
-const { startNotificationJob } = require('./jobs/classNotificationJob.js');
+require('./jobs/classNotificationJob.js');
 
 const port = process.env.PORT || 5000;
 
