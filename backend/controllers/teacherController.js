@@ -4,6 +4,23 @@ const StatusCodes = require("http-status-codes");
 const { NotFoundError, BadRequestError } = require("../errors");
 
 
+
+const addNewTeacher = asyncHandler(async (req, res) => {
+
+  const { name, email, password, salary, role } = req.body;
+
+
+  const teacherExists = await User.findOne({ email });
+
+  if (teacherExists) throw new BadRequestError("Teacher Already Exists")
+
+  const teacher = await User.create({name, email, password, salary, role })
+
+  res.status(StatusCodes.OK).json({msg: "Teacher Added Successfully", teacher});
+
+})
+
+
 // @desc Get all teachers
 const getAllTeachers = asyncHandler(async (req, res) => {
   const teachers = await User.find({ role: "teacher" });
@@ -18,7 +35,7 @@ const getAllTeachers = asyncHandler(async (req, res) => {
 const getSingleTeacher = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const teacher = await User.findOne({ _id: id, role: "teacher" });
+  const teacher = await User.findOne({ _id: id, role: "teacher" }).select('-password')
   if (!teacher) throw new NotFoundError(`No Teacher Found with id: ${id}`);
 
   res.status(StatusCodes.OK).json({ teacher, msg: "Teacher Found Successfully" });
@@ -78,6 +95,7 @@ const searchTeachers = asyncHandler(async (req, res) => {
 
 
 module.exports = {
+  addNewTeacher, 
   getAllTeachers,
   getSingleTeacher,
   updateTeacher,

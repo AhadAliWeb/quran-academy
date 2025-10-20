@@ -35,9 +35,9 @@ const DashboardLayout = ({name}) => {
         localStorage.setItem("fcmToken", token)
       }
 
-      console.log(token)
-
     } catch (error) {
+
+      console.log(`Error Saving Token: ${error}`);
       
     }
 

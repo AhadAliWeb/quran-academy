@@ -108,7 +108,7 @@ const deleteTeacher = async (id) => {
                 <p className="text-gray-600 mt-1">Manage and view all teachers in the system</p>
               </div>
             </div>
-            <Link to="admin/dashboard/add-teacher">
+            <Link to="/admin/dashboard/add-teacher">
             <button className="flex items-center gap-2 bg-primary hover:bg-secondary cursor-pointer text-white px-4 py-2 rounded-lg font-medium transition-colors">
               <Plus className="w-4 h-4" />
               Add Teacher
@@ -199,9 +199,9 @@ const deleteTeacher = async (id) => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           <div className="flex items-center gap-2">
-                            <button className="text-primary hover:text-secondary p-1">
+                            <Link to={`/admin/dashboard/edit-teacher/${teacher._id}`} className="text-primary hover:text-secondary p-1">
                               <Edit className="w-4 h-4" />
-                            </button>
+                            </Link>
                             <button 
                               onClick={() => deleteTeacher(teacher._id)}
                               className="text-red-600 hover:text-red-800 p-1"

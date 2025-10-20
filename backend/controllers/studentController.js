@@ -89,24 +89,34 @@ const getStudentById = asyncHandler(async (req, res) => {
 // Update student
 const updateStudent = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { name, email, ...profileData } = req.body;
+  const { name, email, password, fees, age, phoneNumber, country, gender, status } = req.body;
 
   const student = await User.findOne({ _id: id, role: "student" });
-  if (!student) throw new NotFoundError(`No student found with id: ${id}`);
+  if (!student) {
+    throw new NotFoundError(`No student found with id: ${id}`);
+  }
 
+  // Update fields dynamically
   if (name) student.name = name;
   if (email) student.email = email;
+  if (fees) student.fees = fees;
+  if (age) student.age = age;
+  if (phoneNumber) student.phoneNumber = phoneNumber;
+  if (country) student.country = country;
+  if (gender) student.gender = gender;
+  if (status) student.status = status;
+
+  // Only update password if it's provided
+  if (password) {
+    student.password = password; // will trigger hashing if pre-save middleware exists
+  }
+
   await student.save();
 
-  const profile = await StudentProfile.findOneAndUpdate(
-    { user: id },
-    profileData,
-    { new: true }
-  );
-
-  res
-    .status(StatusCodes.OK)
-    .json({ msg: "Student updated successfully", student, profile });
+  res.status(StatusCodes.OK).json({
+    msg: "Student updated successfully",
+    student,
+  });
 });
 
 // Delete student

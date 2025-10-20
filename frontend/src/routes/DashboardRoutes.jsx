@@ -19,6 +19,9 @@ import TeacherDashHome from "../TeacherDashboard/TeacherDashHome";
 import MonthlyReport from "../TeacherDashboard/MonthlyReport";
 import GeneralEvaluation from "../TeacherDashboard/GeneralEvaluation";
 import MonthlyReports from "../StudentDashboard/MonthlyReports";
+import EditStudent from "../AdminDashboard/EditStudent";
+import AddTeacher from "../AdminDashboard/AddTeacher";
+import EditTeacher from "../AdminDashboard/EditTeacher";
 
 
 export const StudentDashboardRoutes = [
@@ -109,8 +112,20 @@ export const AdminDashboardRoutes = [
                 element: <AllTeachers />
             },
             {
+                path: "add-teacher",
+                element: <AddTeacher />
+            },
+            {
+                path: "edit-teacher/:teacherId",
+                element: <EditTeacher />
+            },
+            {
                 path: "add-new-student",
                 element: <AddNewStudent />
+            },
+            {
+                path: "edit-student/:studentId",
+                element: <EditStudent />
             },
             {
                 path: "course-management",

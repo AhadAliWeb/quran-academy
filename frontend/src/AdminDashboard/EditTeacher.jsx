@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router';
+import axios from 'axios';
 import { User, Mail, Lock, DollarSign, Save, ArrowLeft, Eye, EyeOff, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 
-const AddTeacher = () => {
+const EditTeacher = () => {
+  const { teacherId } = useParams();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -10,10 +15,35 @@ const AddTeacher = () => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  // Fetch teacher data on mount
+  useEffect(() => {
+    fetchTeacherData();
+  }, [teacherId]);
+
+  const fetchTeacherData = async () => {
+    try {
+      setPageLoading(true);
+      const response = await axios.get(`/api/v1/teachers/${teacherId}`);
+
+      const teacher = response.data.teacher;
+      
+      setFormData({
+        name: teacher.name || '',
+        email: teacher.email || '',
+        password: '', // Don't pre-fill password for security
+        salary: teacher.salary || ''
+      });
+    } catch (err) {
+      setError(err.response?.data?.msg || 'Failed to load teacher data');
+    } finally {
+      setPageLoading(false);
+    }
+  };
 
   // Validate form
   const validateForm = () => {
@@ -31,9 +61,8 @@ const AddTeacher = () => {
       newErrors.email = 'Please enter a valid email';
     }
 
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
+    // Password is optional on edit (only validate if provided)
+    if (formData.password && formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
 
@@ -76,35 +105,22 @@ const AddTeacher = () => {
 
     try {
       const submitData = {
-        ...formData,
-        salary: parseFloat(formData.salary),
-        role: 'teacher' // Add role field for backend
+        name: formData.name,
+        email: formData.email,
+        salary: parseFloat(formData.salary)
       };
 
-      // Using fetch since axios isn't available in this environment
-      // In your actual project, replace this with:
-      // const response = await axios.post(`/api/v1/teachers`, submitData);
-      const response = await fetch(`/api/v1/teachers`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submitData)
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.msg || 'Failed to create teacher');
+      // Only include password if it was changed
+      if (formData.password.trim()) {
+        submitData.password = formData.password;
       }
 
-      setSuccess('Teacher created successfully!');
-      
-      // Reset form
-      setFormData({ name: '', email: '', password: '', salary: '' });
+      const response = await axios.put(`/api/v1/teachers/${teacherId}`, submitData);
+
+      setSuccess('Teacher updated successfully!');
 
     } catch (err) {
-      setError(err.message || 'Failed to create teacher');
+      setError(err.response?.data?.msg || 'Failed to update teacher');
     } finally {
       setLoading(false);
     }
@@ -112,18 +128,27 @@ const AddTeacher = () => {
 
   // Handle back navigation
   const handleBack = () => {
-    // In a real app, this would use your router
-    // navigate('/teachers');
-    window.history.back();
+    navigate('/admin/dashboard/all-teachers');
   };
 
-  // Reset form
+  // Reset form to current teacher data
   const resetForm = () => {
-    setFormData({ name: '', email: '', password: '', salary: '' });
+    fetchTeacherData();
     setErrors({});
     setSuccess('');
     setError('');
   };
+
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-gray-600">Loading teacher data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
@@ -143,8 +168,8 @@ const AddTeacher = () => {
               <User className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Add New Teacher</h1>
-              <p className="text-gray-600 mt-1">Fill in the details to add a new teacher to the system</p>
+              <h1 className="text-2xl font-bold text-gray-900">Edit Teacher</h1>
+              <p className="text-gray-600 mt-1">Update the teacher's information below</p>
             </div>
           </div>
         </div>
@@ -219,7 +244,7 @@ const AddTeacher = () => {
             {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password *
+                Password (Leave blank to keep current)
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -232,7 +257,7 @@ const AddTeacher = () => {
                   className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors ${
                     errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300'
                   }`}
-                  placeholder="Enter password (min. 6 characters)"
+                  placeholder="Enter new password (min. 6 characters)"
                 />
                 <button
                   type="button"
@@ -285,7 +310,7 @@ const AddTeacher = () => {
                 ) : (
                   <Save className="w-4 h-4" />
                 )}
-                {loading ? 'Adding Teacher...' : 'Add Teacher'}
+                {loading ? 'Updating Teacher...' : 'Update Teacher'}
               </button>
               
               <div className="flex gap-2">
@@ -308,10 +333,21 @@ const AddTeacher = () => {
           </div>
         </div>
 
-
+        {/* Form Guidelines */}
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="text-sm font-medium text-blue-900 mb-2">Form Guidelines:</h3>
+          <ul className="text-sm text-blue-700 space-y-1">
+            <li>• All fields marked with * are required</li>
+            <li>• Name must be at least 2 characters long</li>
+            <li>• Email must be valid</li>
+            <li>• Password is optional - leave blank to keep the current password</li>
+            <li>• New password must be at least 6 characters long</li>
+            <li>• Salary should be entered as a monthly amount in numbers only</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
 };
 
-export default AddTeacher;
+export default EditTeacher;

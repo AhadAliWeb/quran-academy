@@ -6,10 +6,16 @@ const {
   updateTeacher,
   deleteTeacher,
   searchTeachers,
+  addNewTeacher,
 } = require("../controllers/teacherController");
+const { protect, authorizePermissions } = require("../middleware/authMiddleware");
 
 // GET all teachers
 router.get("/", getAllTeachers);
+
+
+router.post("/", protect, authorizePermissions("admin"), addNewTeacher)
+
 
 // GET search teachers
 router.get("/search", searchTeachers);

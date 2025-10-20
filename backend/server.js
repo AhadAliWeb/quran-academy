@@ -13,6 +13,7 @@ const attendanceRoutes = require('./routes/attendanceRoutes.js')
 const uploadRoutes = require("./routes/uploadRoutes.js")
 const lessonRoutes = require("./routes/lessonRoutes.js")
 const reportRoutes = require("./routes/reportRoutes.js");
+const notificationRoutes = require("./routes/notificationRoutes.js")
 
 
 // middleware
@@ -40,6 +41,7 @@ app.use('/api/v1/attendance', attendanceRoutes)
 app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/lesson', lessonRoutes)
 app.use('/api/v1/report', reportRoutes)
+app.use('/api/v1/notifications', notificationRoutes);
 
 if (process.env.NODE_ENV === 'production') {
   const __dirname = path.resolve();

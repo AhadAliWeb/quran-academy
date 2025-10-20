@@ -4,4 +4,6 @@ const serviceAccount = require('../app-notifications-294ad-firebase-adminsdk-fbs
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
+
+
 module.exports = admin;

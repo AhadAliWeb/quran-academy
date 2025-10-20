@@ -543,9 +543,13 @@ const saveToken = asyncHandler(async(req, res) => {
 
     const { fcmToken } = req.body;
 
-    const userId = req.user._id
+    const userId = req.user._id;
 
-    await User.findByIdAndUpdate(userId, { fcmToken });
+    console.log("Inside save Token")
+
+    const user = await User.findByIdAndUpdate(userId, { fcmToken });
+
+    await user.save()
 
     res.status(StatusCodes.OK).json({ msg: "Token saved Successfully"})
 

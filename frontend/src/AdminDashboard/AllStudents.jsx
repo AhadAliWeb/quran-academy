@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, Eye, Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
+import { Link } from 'react-router';
 
 const AllStudents = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -330,9 +331,9 @@ const handleDelete = async (studentId) => {
                         <button className="text-primary hover:text-secondary transition-colors">
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button className="text-blue-600 hover:text-blue-800 transition-colors">
+                        <Link to={`/admin/dashboard/edit-student/${student.id}`} className="text-blue-600 hover:text-blue-800 transition-colors">
                           <Edit className="w-4 h-4" />
-                        </button>
+                        </Link>
                         <button className="text-red-600 hover:text-red-800 transition-colors" onClick={() => handleDelete(_student._id)}>
                           <Trash2 className="w-4 h-4" />
                         </button>

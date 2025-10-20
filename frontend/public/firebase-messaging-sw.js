@@ -15,4 +15,12 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('Received background message:', payload);
 
+  const notificationTitle = payload.notification?.title || 'Notification';
+  const notificationOptions = {
+    body: payload.notification?.body || '',
+    // icon: '/logo192.png', // or your own icon in /public
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
+
  });
