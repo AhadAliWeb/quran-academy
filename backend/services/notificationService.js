@@ -91,82 +91,60 @@ const dayToNumber = {
   Saturday: 6
 };
 
-// cron.schedule("* * * * *", async () => {
-//   try {
-//     const now = new Date();
-//     const currentDay = now.getDay(); // 0-6
-//     const currentTime = now.getHours() * 60 + now.getMinutes();
-
-//     // We want classes that start in exactly 15 minutes
-//     const targetTime = currentTime + 15;
-
-//     const enrollments = await Enrollment.find({})
-//       .populate("student", "fcmToken name")
-//       .populate("teacher", "fcmToken name")
-//       .populate("course", "name");
-
-//     for (const enrollment of enrollments) {
-//       for (const day of enrollment.schedule.days) {
-
-//         if (dayToNumber[day] === currentDay) {
-//           const [hours, minutes] = enrollment.schedule.time.split(":").map(Number);
-//           const classTime = hours * 60 + minutes;
-
-//           if (classTime === targetTime) {
-//             const messageTitle = `Upcoming ${enrollment.course.name} Class`;
-//             const messageBody = `Your class starts in 15 minutes`;
-
-//             const recipients = [enrollment.student, enrollment.teacher];
-
-//             for (const user of recipients) {
-//               if (user.fcmToken) {
-//                 await admin.messaging().send({
-//                   token: user.fcmToken,
-//                   notification: {
-//                     title: messageTitle,
-//                     body: messageBody,
-//                   },
-//                 });
-//               }
-//             }
-//           }
-//         }
-//       }
-//     }
-
-//   } catch (err) {
-//     console.error("Error in notification cron:", err);
-//   }
-// });
-
-
 cron.schedule("* * * * *", async () => {
   try {
-    console.log("Running notification job:", new Date().toISOString());
+    const now = new Date();
+    const currentDay = now.getDay(); // 0-6
+    const currentTime = now.getHours() * 60 + now.getMinutes();
 
-    const users = await User.find({ fcmToken: { $exists: true, $ne: null } });
+    // We want classes that start in exactly 15 minutes
+    const targetTime = currentTime + 15;
 
-    if (!users.length) {
-      console.log("No users with fcmToken found.");
-      return;
-    }
+    const enrollments = await Enrollment.find({})
+      .populate("student", "fcmToken name")
+      .populate("teacher", "fcmToken name")
+      .populate("course", "name");
 
-    for (const user of users) {
-      try {
-        await admin.messaging().send({
-          token: user.fcmToken,
-          notification: {
-            title: "⏰ Scheduled Notification",
-            body: `Hello ${user.name}, this is your automatic notification.`,
-          },
-        });
-        console.log(`Notification sent to ${user.email}`);
-      } catch (err) {
-        console.error(`Failed to send to ${user.email}:`, err.message);
+    for (const enrollment of enrollments) {
+
+      console.log("Enrollment", currentTime)
+
+      for (const day of enrollment.schedule.days) {
+
+        console.log(dayToNumber[day], currentDay)
+
+        if (dayToNumber[day] === currentDay) {
+
+          
+
+          const [hours, minutes] = enrollment.schedule.time.split(":").map(Number);
+          const classTime = hours * 60 + minutes;
+
+          if (classTime === targetTime) {
+            const messageTitle = `Upcoming ${enrollment.course.name} Class`;
+            const messageBody = `Your class starts in 15 minutes`;
+
+            const recipients = [enrollment.student, enrollment.teacher];
+
+            for (const user of recipients) {
+              if (user.fcmToken) {
+                await admin.messaging().send({
+                  token: user.fcmToken,
+                  notification: {
+                    title: messageTitle,
+                    body: messageBody,
+                  },
+                });
+              }
+            }
+          }
+        }
       }
     }
 
   } catch (err) {
-    console.error("Error in cron job:", err);
+    console.error("Error in notification cron:", err);
   }
 });
+
+
