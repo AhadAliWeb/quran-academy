@@ -45,20 +45,33 @@ const getSingleTeacher = asyncHandler(async (req, res) => {
 // @desc Update teacher by ID
 const updateTeacher = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { name, email, salary } = req.body; // salary is optional if you extend model
+  const { name, email, salary, password, age, gender } = req.body;
 
-  if (!name && !email && !salary) throw new BadRequestError("Please provide data to update");
+  const teacher = await User.findOne({ _id: id, role: "teacher" });
+  if (!teacher) {
+    throw new NotFoundError(`No teacher found with id: ${id}`);
+  }
 
-  const teacher = await User.findOneAndUpdate(
-    { _id: id, role: "teacher" },
-    { name, email, salary },
-    { new: true, runValidators: true }
-  );
+  // Update fields dynamically
+  if (name) teacher.name = name;
+  if (email) teacher.email = email;
+  if (salary) teacher.salary = salary;
+  if (age) teacher.age = age;
+  if (gender) teacher.gender = gender;
 
-  if (!teacher) throw new NotFoundError(`No Teacher Found with id: ${id}`);
+  // Only update password if it's provided
+  if (password) {
+    teacher.password = password; // relies on pre-save middleware to hash
+  }
 
-  res.status(StatusCodes.OK).json({ teacher, msg: "Teacher Updated Successfully" });
+  await teacher.save();
+
+  res.status(StatusCodes.OK).json({
+    msg: "Teacher updated successfully",
+    teacher,
+  });
 });
+
 
 
 // @desc Delete teacher by ID

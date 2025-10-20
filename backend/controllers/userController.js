@@ -545,8 +545,6 @@ const saveToken = asyncHandler(async(req, res) => {
 
     const userId = req.user._id;
 
-    console.log("Inside save Token")
-
     const user = await User.findByIdAndUpdate(userId, { fcmToken });
 
     await user.save()

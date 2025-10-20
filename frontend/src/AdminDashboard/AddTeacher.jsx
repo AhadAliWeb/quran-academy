@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
-import { User, Mail, Lock, DollarSign, Save, ArrowLeft, Eye, EyeOff, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { 
+  User, Mail, Lock, DollarSign, Save, ArrowLeft, 
+  Eye, EyeOff, CheckCircle, AlertCircle, Loader 
+} from 'lucide-react';
 
 const AddTeacher = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    salary: ''
+    salary: '',
+    gender: '',
+    age: ''
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
 
   // Validate form
   const validateForm = () => {
@@ -43,6 +47,16 @@ const AddTeacher = () => {
       newErrors.salary = 'Please enter a valid salary amount';
     }
 
+    if (!formData.gender) {
+      newErrors.gender = 'Gender is required';
+    }
+
+    if (!formData.age) {
+      newErrors.age = 'Age is required';
+    } else if (isNaN(formData.age) || parseInt(formData.age) < 18) {
+      newErrors.age = 'Please enter a valid age (18 or above)';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -54,8 +68,8 @@ const AddTeacher = () => {
       ...prev,
       [name]: value
     }));
-    
-    // Clear error for this field when user starts typing
+
+    // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -78,12 +92,10 @@ const AddTeacher = () => {
       const submitData = {
         ...formData,
         salary: parseFloat(formData.salary),
-        role: 'teacher' // Add role field for backend
+        age: parseInt(formData.age),
+        role: 'teacher'
       };
 
-      // Using fetch since axios isn't available in this environment
-      // In your actual project, replace this with:
-      // const response = await axios.post(`/api/v1/teachers`, submitData);
       const response = await fetch(`/api/v1/teachers`, {
         method: 'POST',
         headers: {
@@ -93,15 +105,13 @@ const AddTeacher = () => {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.msg || 'Failed to create teacher');
       }
 
       setSuccess('Teacher created successfully!');
-      
-      // Reset form
-      setFormData({ name: '', email: '', password: '', salary: '' });
+      setFormData({ name: '', email: '', password: '', salary: '', gender: '', age: '' });
 
     } catch (err) {
       setError(err.message || 'Failed to create teacher');
@@ -110,16 +120,12 @@ const AddTeacher = () => {
     }
   };
 
-  // Handle back navigation
   const handleBack = () => {
-    // In a real app, this would use your router
-    // navigate('/teachers');
     window.history.back();
   };
 
-  // Reset form
   const resetForm = () => {
-    setFormData({ name: '', email: '', password: '', salary: '' });
+    setFormData({ name: '', email: '', password: '', salary: '', gender: '', age: '' });
     setErrors({});
     setSuccess('');
     setError('');
@@ -137,7 +143,7 @@ const AddTeacher = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Teachers
           </button>
-          
+
           <div className="flex items-center gap-3">
             <div className="p-3 bg-primary rounded-lg">
               <User className="w-6 h-6 text-white" />
@@ -168,7 +174,8 @@ const AddTeacher = () => {
         {/* Form */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="space-y-6">
-            {/* Name Field */}
+
+            {/* Name */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name *
@@ -187,12 +194,10 @@ const AddTeacher = () => {
                   placeholder="Enter teacher's full name"
                 />
               </div>
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-              )}
+              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
             </div>
 
-            {/* Email Field */}
+            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address *
@@ -211,12 +216,10 @@ const AddTeacher = () => {
                   placeholder="Enter email address"
                 />
               </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-              )}
+              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
 
-            {/* Password Field */}
+            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password *
@@ -242,12 +245,51 @@ const AddTeacher = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-              )}
+              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
             </div>
 
-            {/* Salary Field */}
+            {/* Gender */}
+            <div>
+              <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
+                Gender *
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleInputChange}
+                className={`w-full py-3 px-4 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors ${
+                  errors.gender ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              {errors.gender && <p className="mt-1 text-sm text-red-600">{errors.gender}</p>}
+            </div>
+
+            {/* Age */}
+            <div>
+              <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-2">
+                Age *
+              </label>
+              <input
+                type="number"
+                id="age"
+                name="age"
+                value={formData.age}
+                onChange={handleInputChange}
+                min="18"
+                className={`w-full py-3 px-4 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors ${
+                  errors.age ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
+                placeholder="Enter age"
+              />
+              {errors.age && <p className="mt-1 text-sm text-red-600">{errors.age}</p>}
+            </div>
+
+            {/* Salary */}
             <div>
               <label htmlFor="salary" className="block text-sm font-medium text-gray-700 mb-2">
                 Monthly Salary *
@@ -268,26 +310,20 @@ const AddTeacher = () => {
                   placeholder="Enter monthly salary"
                 />
               </div>
-              {errors.salary && (
-                <p className="mt-1 text-sm text-red-600">{errors.salary}</p>
-              )}
+              {errors.salary && <p className="mt-1 text-sm text-red-600">{errors.salary}</p>}
             </div>
 
-            {/* Action Buttons */}
+            {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <button
                 onClick={handleSubmit}
                 disabled={loading}
                 className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-secondary text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? (
-                  <Loader className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
-                )}
+                {loading ? <Loader className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {loading ? 'Adding Teacher...' : 'Add Teacher'}
               </button>
-              
+
               <div className="flex gap-2">
                 <button
                   onClick={resetForm}
@@ -296,7 +332,6 @@ const AddTeacher = () => {
                 >
                   Reset Form
                 </button>
-                
                 <button
                   onClick={handleBack}
                   className="px-4 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
@@ -305,10 +340,9 @@ const AddTeacher = () => {
                 </button>
               </div>
             </div>
+
           </div>
         </div>
-
-
       </div>
     </div>
   );

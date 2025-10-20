@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import axios from 'axios';
-import { User, Mail, Lock, DollarSign, Save, ArrowLeft, Eye, EyeOff, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { 
+  User, Mail, Lock, DollarSign, Save, ArrowLeft, Eye, EyeOff, 
+  CheckCircle, AlertCircle, Loader 
+} from 'lucide-react';
 
 const EditTeacher = () => {
   const { teacherId } = useParams();
@@ -11,8 +14,11 @@ const EditTeacher = () => {
     name: '',
     email: '',
     password: '',
-    salary: ''
+    salary: '',
+    gender: '',
+    age: ''
   });
+
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
@@ -20,7 +26,6 @@ const EditTeacher = () => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Fetch teacher data on mount
   useEffect(() => {
     fetchTeacherData();
   }, [teacherId]);
@@ -29,14 +34,15 @@ const EditTeacher = () => {
     try {
       setPageLoading(true);
       const response = await axios.get(`/api/v1/teachers/${teacherId}`);
-
       const teacher = response.data.teacher;
-      
+
       setFormData({
         name: teacher.name || '',
         email: teacher.email || '',
-        password: '', // Don't pre-fill password for security
-        salary: teacher.salary || ''
+        password: '',
+        salary: teacher.salary || '',
+        gender: teacher.gender || '',
+        age: teacher.age || ''
       });
     } catch (err) {
       setError(err.response?.data?.msg || 'Failed to load teacher data');
@@ -45,7 +51,6 @@ const EditTeacher = () => {
     }
   };
 
-  // Validate form
   const validateForm = () => {
     const newErrors = {};
 
@@ -61,9 +66,18 @@ const EditTeacher = () => {
       newErrors.email = 'Please enter a valid email';
     }
 
-    // Password is optional on edit (only validate if provided)
     if (formData.password && formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (!formData.gender) {
+      newErrors.gender = 'Gender is required';
+    }
+
+    if (!formData.age) {
+      newErrors.age = 'Age is required';
+    } else if (isNaN(formData.age) || formData.age < 18) {
+      newErrors.age = 'Please enter a valid age (18 or older)';
     }
 
     if (!formData.salary) {
@@ -76,28 +90,16 @@ const EditTeacher = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error for this field when user starts typing
+    setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
-  // Handle form submission
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
     setError('');
@@ -107,18 +109,17 @@ const EditTeacher = () => {
       const submitData = {
         name: formData.name,
         email: formData.email,
-        salary: parseFloat(formData.salary)
+        salary: parseFloat(formData.salary),
+        gender: formData.gender,
+        age: parseInt(formData.age, 10)
       };
 
-      // Only include password if it was changed
       if (formData.password.trim()) {
         submitData.password = formData.password;
       }
 
-      const response = await axios.put(`/api/v1/teachers/${teacherId}`, submitData);
-
+      await axios.put(`/api/v1/teachers/${teacherId}`, submitData);
       setSuccess('Teacher updated successfully!');
-
     } catch (err) {
       setError(err.response?.data?.msg || 'Failed to update teacher');
     } finally {
@@ -126,12 +127,10 @@ const EditTeacher = () => {
     }
   };
 
-  // Handle back navigation
   const handleBack = () => {
     navigate('/admin/dashboard/all-teachers');
   };
 
-  // Reset form to current teacher data
   const resetForm = () => {
     fetchTeacherData();
     setErrors({});
@@ -153,7 +152,6 @@ const EditTeacher = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <button
             onClick={handleBack}
@@ -162,7 +160,7 @@ const EditTeacher = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Teachers
           </button>
-          
+
           <div className="flex items-center gap-3">
             <div className="p-3 bg-primary rounded-lg">
               <User className="w-6 h-6 text-white" />
@@ -174,7 +172,6 @@ const EditTeacher = () => {
           </div>
         </div>
 
-        {/* Success Message */}
         {success && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-600" />
@@ -182,7 +179,6 @@ const EditTeacher = () => {
           </div>
         )}
 
-        {/* Error Message */}
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-red-600" />
@@ -190,10 +186,9 @@ const EditTeacher = () => {
           </div>
         )}
 
-        {/* Form */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="space-y-6">
-            {/* Name Field */}
+            {/* Name */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name *
@@ -212,12 +207,10 @@ const EditTeacher = () => {
                   placeholder="Enter teacher's full name"
                 />
               </div>
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-              )}
+              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
             </div>
 
-            {/* Email Field */}
+            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address *
@@ -236,12 +229,10 @@ const EditTeacher = () => {
                   placeholder="Enter email address"
                 />
               </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-              )}
+              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
 
-            {/* Password Field */}
+            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password (Leave blank to keep current)
@@ -267,12 +258,50 @@ const EditTeacher = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-              )}
+              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
             </div>
 
-            {/* Salary Field */}
+            {/* Gender */}
+            <div>
+              <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
+                Gender *
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors ${
+                  errors.gender ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              {errors.gender && <p className="mt-1 text-sm text-red-600">{errors.gender}</p>}
+            </div>
+
+            {/* Age */}
+            <div>
+              <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-2">
+                Age *
+              </label>
+              <input
+                type="number"
+                id="age"
+                name="age"
+                value={formData.age}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors ${
+                  errors.age ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
+                placeholder="Enter age"
+              />
+              {errors.age && <p className="mt-1 text-sm text-red-600">{errors.age}</p>}
+            </div>
+
+            {/* Salary */}
             <div>
               <label htmlFor="salary" className="block text-sm font-medium text-gray-700 mb-2">
                 Monthly Salary *
@@ -293,12 +322,10 @@ const EditTeacher = () => {
                   placeholder="Enter monthly salary"
                 />
               </div>
-              {errors.salary && (
-                <p className="mt-1 text-sm text-red-600">{errors.salary}</p>
-              )}
+              {errors.salary && <p className="mt-1 text-sm text-red-600">{errors.salary}</p>}
             </div>
 
-            {/* Action Buttons */}
+            {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <button
                 onClick={handleSubmit}
@@ -312,7 +339,7 @@ const EditTeacher = () => {
                 )}
                 {loading ? 'Updating Teacher...' : 'Update Teacher'}
               </button>
-              
+
               <div className="flex gap-2">
                 <button
                   onClick={resetForm}
@@ -321,7 +348,7 @@ const EditTeacher = () => {
                 >
                   Reset Form
                 </button>
-                
+
                 <button
                   onClick={handleBack}
                   className="px-4 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
@@ -333,7 +360,6 @@ const EditTeacher = () => {
           </div>
         </div>
 
-        {/* Form Guidelines */}
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="text-sm font-medium text-blue-900 mb-2">Form Guidelines:</h3>
           <ul className="text-sm text-blue-700 space-y-1">
@@ -342,7 +368,9 @@ const EditTeacher = () => {
             <li>• Email must be valid</li>
             <li>• Password is optional - leave blank to keep the current password</li>
             <li>• New password must be at least 6 characters long</li>
-            <li>• Salary should be entered as a monthly amount in numbers only</li>
+            <li>• Gender selection is mandatory</li>
+            <li>• Age must be 18 or older</li>
+            <li>• Salary should be a valid monthly amount</li>
           </ul>
         </div>
       </div>
