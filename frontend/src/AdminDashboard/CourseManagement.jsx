@@ -16,6 +16,7 @@ const CourseManagement = () => {
     axios.get("/api/v1/courses").then(res => setCourses(res.data.courses)).catch(err => console.log(err));
   };
 
+
   useEffect(() => {
     getAllCourses();
   }, []);

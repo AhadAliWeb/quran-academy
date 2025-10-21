@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Upload, Image, Plus } from 'lucide-react';
-import axios from "axios"
+import { X, Upload, Loader2 } from 'lucide-react';
+import axios from "axios";
 
 const AddLesson = ({ open, onClose, selectedEnrollment }) => {
   const [isOpen, setIsOpen] = useState(open);
@@ -12,15 +12,14 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
   });
   const [uploadedImages, setUploadedImages] = useState([]);
   const [dragOver, setDragOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
   const modalRef = useRef(null);
 
-  // Sync isOpen with open prop
   useEffect(() => {
     setIsOpen(open);
   }, [open]);
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -29,25 +28,53 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
     }));
   };
 
-  // Handle file selection
-  const handleFileSelect = (files) => {
-    const newImages = Array.from(files).map(file => ({
-      id: Date.now() + Math.random(),
-      file,
-      url: URL.createObjectURL(file),
-      name: file.name
-    }));
-    setUploadedImages(prev => [...prev, ...newImages]);
+  // Upload single image to server immediately
+  const uploadSingleImage = async (file) => {
+    const formDataUpload = new FormData();
+    formDataUpload.append("image", file);
+
+    try {
+      const uploadRes = await axios.post("/api/v1/upload/image", formDataUpload, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      return {
+        id: Date.now() + Math.random(),
+        url: uploadRes.data.url,
+        public_id: uploadRes.data.public_id,
+        name: file.name
+      };
+    } catch (error) {
+      console.error("Upload failed:", error);
+      throw new Error(error.response?.data?.message || "Upload failed");
+    }
   };
 
-  // Handle file input change
+  // Handle file selection and upload immediately
+  const handleFileSelect = async (files) => {
+    setUploading(true);
+    const filesArray = Array.from(files);
+    
+    for (const file of filesArray) {
+      try {
+        const uploadedImage = await uploadSingleImage(file);
+        setUploadedImages(prev => [...prev, uploadedImage]);
+      } catch (error) {
+        alert(`Failed to upload ${file.name}: ${error.message}`);
+      }
+    }
+    
+    setUploading(false);
+  };
+
   const handleFileInputChange = (e) => {
     if (e.target.files.length > 0) {
       handleFileSelect(e.target.files);
     }
   };
 
-  // Handle drag and drop
   const handleDragOver = (e) => {
     e.preventDefault();
     setDragOver(true);
@@ -67,7 +94,6 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
     }
   };
 
-  // Handle paste event
   const handlePaste = (e) => {
     const items = e.clipboardData.items;
     const files = [];
@@ -84,71 +110,54 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
     }
   };
 
-  // Remove image
-  const removeImage = (imageId) => {
-    setUploadedImages(prev => {
-      const updated = prev.filter(img => img.id !== imageId);
-      // Clean up object URLs to prevent memory leaks
-      const removed = prev.find(img => img.id === imageId);
-      if (removed) {
-        URL.revokeObjectURL(removed.url);
-      }
-      return updated;
-    });
+  // Delete image from Cloudinary and remove from state
+  const removeImage = async (imageId, public_id) => {
+    try {
+      await axios.delete(`/api/v1/upload/image/${encodeURIComponent(public_id)}`);
+      
+      setUploadedImages(prev => prev.filter(img => img.id !== imageId));
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete image: " + (error.response?.data?.message || error.message));
+    }
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-  
+    // Validate all required fields
+    if (!formData.chapterNumber || !formData.pageNumber || !formData.ayahLineNumber || !formData.memorizationLessonNumber) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    if (uploadedImages.length === 0) {
+      alert("Please upload at least one image");
+      return;
+    }
+
     try {
-      // 1. Upload images first
-      const formDataUpload = new FormData();
-      uploadedImages.forEach(img => {
-        formDataUpload.append("images", img.file); // key must match backend
-      });
-  
-      const uploadRes = await fetch("/api/v1/upload/image", {
-        method: "POST",
-        body: formDataUpload,
-      });
-
+      const { course, student, enrollment } = selectedEnrollment;
       
-  
-      const uploadData = await uploadRes.json();
-      if (!uploadRes.ok) throw new Error(uploadData.error || "Upload failed");
-  
-      // 2. Now you have Cloudinary URLs
-      const cloudinaryUrls = uploadData.urls;
-  
-      // 3. Send lesson data + image URLs to backend
-      const { course, student, enrollment } = selectedEnrollment
+      // Extract just the URLs for the lesson
+      const imageUrls = uploadedImages.map(img => img.url);
 
-      console.log(selectedEnrollment)
+      await axios.post("/api/v1/lesson", { 
+        ...formData, 
+        course, 
+        student, 
+        enrollment, 
+        imageUrls 
+      });
 
-      axios.post("/api/v1/lesson", { ...formData, course, student, enrollment, imageUrls: cloudinaryUrls}).then(res => console.log(res)).catch(err => console.log(err))
-      // const lessonRes = await fetch("/api/lessons", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-      //     ...formData,
-      //     images: cloudinaryUrls,
-      //   }),
-      // });
-  
-      // const lessonData = await lessonRes.json();
-      // if (!lessonRes.ok) throw new Error(lessonData.error || "Lesson save failed");
-  
       alert("Entry saved successfully!");
       handleClose();
     } catch (err) {
       console.error("Error:", err);
-      alert(err.message);
+      alert(err.response?.data?.message || err.message || "Failed to save lesson");
     }
   };
 
-  // Close modal and reset form
   const handleClose = () => {
     setIsOpen(false);
     setFormData({
@@ -157,14 +166,10 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
       ayahLineNumber: '',
       memorizationLessonNumber: ''
     });
-    // Clean up image URLs
-    uploadedImages.forEach(img => URL.revokeObjectURL(img.url));
     setUploadedImages([]);
-    onClose()
+    onClose();
   };
 
-
-  // Add paste event listener
   useEffect(() => {
     if (isOpen) {
       document.addEventListener('paste', handlePaste);
@@ -176,16 +181,6 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
 
   return (
     <div className="p-4">
-      {/* Trigger Button */}
-      {/* <button
-        onClick={() => setIsOpen(true)}
-        className="bg-primary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
-      >
-        <Plus size={20} />
-        Add Memorization Entry
-      </button> */}
-
-      {/* Modal Overlay */}
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div 
@@ -216,7 +211,7 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
                     name="chapterNumber"
                     value={formData.chapterNumber}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors"
                     placeholder="Enter chapter number"
                     required
                   />
@@ -232,7 +227,7 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
                     name="pageNumber"
                     value={formData.pageNumber}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors"
                     placeholder="Enter page number"
                     required
                   />
@@ -248,7 +243,7 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
                     name="ayahLineNumber"
                     value={formData.ayahLineNumber}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors"
                     placeholder="Enter ayah/line number"
                     required
                   />
@@ -264,7 +259,7 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
                     name="memorizationLessonNumber"
                     value={formData.memorizationLessonNumber}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors"
                     placeholder="Enter lesson number"
                     required
                   />
@@ -281,9 +276,9 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
                 <div
                   className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
                     dragOver 
-                      ? 'border-primary bg-primary bg-opacity-5' 
-                      : 'border-gray-300 hover:border-primary hover:bg-gray-50'
-                  }`}
+                      ? 'border-secondary bg-primary' 
+                      : 'border-gray-300 hover:border-secondary hover:bg-gray-50'
+                  } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
@@ -295,22 +290,32 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
                     accept="image/*"
                     onChange={handleFileInputChange}
                     className="hidden"
+                    disabled={uploading}
                   />
                   
-                  <Upload className="mx-auto mb-4 text-gray-400" size={48} />
-                  <p className="text-gray-600 mb-2">
-                    Drag and drop images here, or{' '}
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="text-primary hover:underline"
-                    >
-                      browse files
-                    </button>
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    You can also paste images using Ctrl+V
-                  </p>
+                  {uploading ? (
+                    <div className="flex flex-col items-center">
+                      <Loader2 className="mx-auto mb-4 text-secondary animate-spin" size={48} />
+                      <p className="text-gray-600">Uploading images...</p>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="mx-auto mb-4 text-gray-400" size={48} />
+                      <p className="text-gray-600 mb-2">
+                        Drag and drop images here, or{' '}
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="text-secondary hover:underline"
+                        >
+                          browse files
+                        </button>
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        You can also paste images using Ctrl+V
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 {/* Uploaded Images Preview */}
@@ -329,7 +334,7 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
                           />
                           <button
                             type="button"
-                            onClick={() => removeImage(image.id)}
+                            onClick={() => removeImage(image.id, image.public_id)}
                             className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
                           >
                             <X size={14} />
@@ -356,7 +361,8 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
                 <button
                   type="submit"
                   onClick={handleSubmit}
-                  className="bg-primary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl order-1 sm:order-2"
+                  disabled={uploading}
+                  className="bg-secondary hover:bg-primary text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl order-1 sm:order-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Save Entry
                 </button>

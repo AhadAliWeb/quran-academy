@@ -85,6 +85,7 @@ const formatStudentData = (student) => {
     id: student._id,
     name: student.name || 'N/A',  // Use name directly instead of firstName + lastName
     email: student.email || 'N/A',
+    phoneNumber: student.phoneNumber || 'N/A',
     courses: student.courses || student.enrolledCourses || [],
     fees: student.fees || student.tuitionFees || 0,
     time: student.classTime || student.schedule?.time || 'N/A',
@@ -315,7 +316,7 @@ const handleDelete = async (studentId) => {
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="text-sm font-medium text-gray-900">{student.phone || "0312-3456789"}</div>
+                      <div className="text-sm font-medium text-gray-900">{student.phoneNumber}</div>
                     </td>
                     <td className="px-4 py-4">
                       <span className={getStatusBadge(student.status)}>
