@@ -22,12 +22,13 @@ import MonthlyReports from "../StudentDashboard/MonthlyReports";
 import EditStudent from "../AdminDashboard/EditStudent";
 import AddTeacher from "../AdminDashboard/AddTeacher";
 import EditTeacher from "../AdminDashboard/EditTeacher";
+import { ProtectedRoute } from "../components/ProtectedRoute"
 
 
 export const StudentDashboardRoutes = [
     {
         path: "/dashboard",
-        element: <DashboardLayout name="Student"></DashboardLayout>,
+        element: <ProtectedRoute allowedRoles={["student"]}><DashboardLayout name="Student"></DashboardLayout></ProtectedRoute>,
         children: [
             {
                 path: "",
@@ -64,7 +65,7 @@ export const StudentDashboardRoutes = [
 export const TeacherDashboardRoutes = [
     {
         path: "/teacher/dashboard",
-        element: <DashboardLayout name="Teacher"></DashboardLayout>,
+        element: <ProtectedRoute allowedRoles={['teacher']}><DashboardLayout name="Teacher"></DashboardLayout></ProtectedRoute>,
         children: [
             {
                 path: "",
@@ -97,7 +98,7 @@ export const TeacherDashboardRoutes = [
 export const AdminDashboardRoutes = [
     {
         path: "/admin/dashboard",
-        element: <DashboardLayout name="Admin"></DashboardLayout>,
+        element: <ProtectedRoute allowedRoles={["admin"]}><DashboardLayout name="Admin"></DashboardLayout></ProtectedRoute>,
         children: [
             {
                 index: true,

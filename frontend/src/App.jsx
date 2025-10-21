@@ -8,6 +8,7 @@ import './App.css'
 import Register from './pages/Register.jsx'
 import Home from './pages/Home.jsx'
 import AppLayout from './components/AppLayout.jsx'
+import Unauthorized from './pages/UnAuthorized.jsx'
 
 function App() {
 
@@ -27,6 +28,10 @@ function App() {
           {
             path: "/confirmation",
             element: <Confirmation />
+          },
+          {
+            path: "/unauthorized",
+            element: <Unauthorized />
           },
           ...StudentDashboardRoutes,
           ...TeacherDashboardRoutes,
