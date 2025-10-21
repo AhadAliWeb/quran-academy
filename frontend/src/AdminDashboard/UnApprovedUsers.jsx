@@ -33,7 +33,7 @@ const UnapprovedUsers = () => {
 
 
     axios.get(`/api/v1/users/approve/${userId}`).then(res => {
-        window.location.reload();
+        fetchUnapprovedUsers()
     }).catch(err => console.log(err)).finally()
 
   };
