@@ -37,6 +37,8 @@ const checkAndSendNotifications = async () => {
   for (const enrollment of enrollments) {
     const classTime = enrollment.schedule.time; // "22:00"
 
+    console.log(notificationTime, classTime)
+    console.log(enrollment.student.name)
     
     // Only send if current time equals 15 minutes before class
     if (notificationTime === classTime) {
@@ -57,6 +59,8 @@ const sendNotificationToStudent = async (enrollment) => {
 
     const fcmToken = student.fcmToken;
 
+    console.log("Sending Notification to", student.name)
+
     const message = {
       notification: {
         title: `${enrollment.course.name} Starting Soon`,
@@ -69,6 +73,7 @@ const sendNotificationToStudent = async (enrollment) => {
       },
       token: fcmToken
     };
+
 
     await messaging.send(message);
 
