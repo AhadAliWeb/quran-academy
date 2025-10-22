@@ -24,6 +24,8 @@ const checkAndSendNotifications = async () => {
   const currentDay = now.format('dddd');
   const currentTime = now.format('HH:mm');
   const notificationTime = getTimeMinutesBefore(currentTime, +15); // Time + 15 minutes
+
+  console.log(currentTime)
   
   // Find all enrollments for today
   const enrollments = await Enrollment.find({
