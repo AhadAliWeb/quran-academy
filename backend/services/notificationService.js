@@ -3,6 +3,7 @@ const admin = require('../config/firebase');
 const cron = require('node-cron');
 const Enrollment = require('../models/enrollment');
 const User = require('../models/userModel')
+const moment = require("moment-timezone")
 
 
 const messaging = admin.messaging();
@@ -19,9 +20,9 @@ const startNotificationScheduler = () => {
 };
 
 const checkAndSendNotifications = async () => {
-  const now = new Date();
-  const currentDay = getDayName(now);
-  const currentTime = formatTime(now);
+  const now = moment().tz('Asia/Karachi');;
+  const currentDay = now.format('dddd');
+  const currentTime = now.format('HH:mm');
   const notificationTime = getTimeMinutesBefore(currentTime, +15); // Time + 15 minutes
   
   // Find all enrollments for today
