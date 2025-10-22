@@ -91,6 +91,7 @@ const updateStudent = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { name, email, password, fees, age, phoneNumber, country, gender, status } = req.body;
 
+
   const student = await User.findOne({ _id: id, role: "student" });
   if (!student) {
     throw new NotFoundError(`No student found with id: ${id}`);

@@ -8,6 +8,7 @@ import axios from 'axios';
 import { setUserInfo } from '../slices/userSlice';
 import { requestNotificationPermission, setupForegroundListener } from '../utils/fcmSetup';
 import { requestFCMToken } from '../config/firebase';
+import Logo from "/logo.png"
 
 
 const DashboardLayout = ({name}) => {
@@ -47,23 +48,9 @@ const DashboardLayout = ({name}) => {
   useEffect(() => {
     
     if(!user.email) {
-      axios
-      .get("/api/v1/users/me")
-      .then((res) => {
-        const { name, email, isApproved, role, id } = res.data.user;
 
-        dispatch(setUserInfo({ name, email, isApproved, role, id }));
+      // useCheckUser()
 
-
-        if (!isApproved) {
-          navigate("/confirmation");
-        }
-
-      })
-      .catch((err) => {
-        console.log(err);
-        navigate("/login")
-      });
     }
     else {
       if(!user.isApproved) navigate('/confirmation') 
@@ -127,8 +114,8 @@ const DashboardLayout = ({name}) => {
           {/* Sidebar header */}
           <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                <span className="text-white font-bold text-sm">D</span>
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-brflex items-center justify-center">
+                <span className="text-white font-bold text-sm"><img src={Logo}/></span>
               </div>
               <span className="text-lg font-semibold text-gray-900 whitespace-nowrap">Dashboard</span>
             </div>

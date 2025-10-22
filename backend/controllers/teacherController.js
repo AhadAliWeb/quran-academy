@@ -7,14 +7,14 @@ const { NotFoundError, BadRequestError } = require("../errors");
 
 const addNewTeacher = asyncHandler(async (req, res) => {
 
-  const { name, email, password, salary, role } = req.body;
+  const { name, email, password, salary, role, age, gender } = req.body;
 
 
   const teacherExists = await User.findOne({ email });
 
   if (teacherExists) throw new BadRequestError("Teacher Already Exists")
 
-  const teacher = await User.create({name, email, password, salary, role })
+  const teacher = await User.create({name, email, password, salary, age, gender, role, isApproved: true })
 
   res.status(StatusCodes.OK).json({msg: "Teacher Added Successfully", teacher});
 

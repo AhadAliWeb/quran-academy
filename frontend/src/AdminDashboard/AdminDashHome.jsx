@@ -80,8 +80,8 @@ const AdminDashboardHome = () => {
           <h3 className="text-3xl font-bold mt-2">{value}</h3>
           {subtitle && <p className="text-xs opacity-80 mt-1">{subtitle}</p>}
         </div>
-        <div className="bg-white bg-opacity-20 p-4 rounded-full">
-          <Icon size={32} />
+        <div className="bg-opacity-20 p-4 rounded-full">
+          <Icon size={32}/>
         </div>
       </div>
     </div>

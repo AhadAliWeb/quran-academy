@@ -92,6 +92,7 @@ const StudentDashHome = () => {
   ];
 
 
+
   const WelcomeCard = () => (
     <div className="group relative overflow-hidden bg-white rounded-3xl shadow-2xl p-8 mb-8 border border-gray-100 transition-all duration-700">
       {/* Background gradients */}
@@ -143,9 +144,6 @@ const StudentDashHome = () => {
                       <div className="text-xl font-bold text-primary">{course.progress}%</div>
                     </div> */}
                   </div>
-                
-                
-                  
                   {/* Continue Learning Button */}
                   <Link to={`/dashboard/all-lessons/${course._id}`}>
                     <button

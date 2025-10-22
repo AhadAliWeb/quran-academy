@@ -10,18 +10,11 @@ const ROLE_HIERARCHY = {
 };
 
 export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
+
   const { email, isApproved, role } = useSelector((state) => state.user);
   const location = useLocation();
 
-  // Check if user is logged in
-  if (!email) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
 
-  // Check if user is approved
-  if (!isApproved) {
-    return <Navigate to="/confirmation" replace />;
-  }
 
   // If no roles specified, allow any authenticated user
   if (allowedRoles.length === 0) {
@@ -35,6 +28,8 @@ export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const hasAccess = allowedRoles.some(allowedRole => 
     userAccessibleRoles.includes(allowedRole)
   );
+
+  console.log(userAccessibleRoles, allowedRoles)
 
   if (!hasAccess) {
     return <Navigate to="/unauthorized" replace />;
