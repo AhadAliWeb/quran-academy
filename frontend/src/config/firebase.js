@@ -2,16 +2,16 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
  
 const firebaseConfig = {
-  apiKey: "AIzaSyD83_9CxLPd-AMwSoGpW_0e_Te0_-rmeG8",
-  authDomain: "app-notifications-294ad.firebaseapp.com",
-  projectId: "app-notifications-294ad",
-  storageBucket: "app-notifications-294ad.firebasestorage.app",
-  messagingSenderId: "756906132227",
-  appId: "1:756906132227:web:dd2d871dc33c1fa1f39f36",
-  measurementId: "G-91J77E6PX3",
+  apiKey: "AIzaSyDT5AlwMA9qSObty8eeB5jovJSvn3ccPDo",
+  authDomain: "notifications-app-8d49e.firebaseapp.com",
+  projectId: "notifications-app-8d49e",
+  storageBucket: "notifications-app-8d49e.firebasestorage.app",
+  messagingSenderId: "653255879137",
+  appId: "1:653255879137:web:e4806394d58e38599a0aa0",
+  measurementId: "G-WWF6G783F0"
 };
 
-const vapidKey = "BLcAOOdb4wcUeggh3P8Beqcdp4cGTPr8QZNarbgKSe3LozDBe9SXoC5xBBQxw17CluEBRX_gtOzNzhCMH1OA87Y"
+const vapidKey = "BPwZ7MtHY5PB-0u3d78VUVPK5M3deDPzqLevD0vB_SLS91s-Cuquplpij_0BeViH-_y-aNQibZcUZoaBlb3m3lU"
 
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);

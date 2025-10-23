@@ -27,7 +27,7 @@ router
 
 router.get('/all-users', getAllUsers)
 
-router.get("/me", protect, getMe)
+router.get("/me", getMe)
 
 router.get("/unapproved", protect, authorizePermissions("admin"), unApprovedUsers)
 
