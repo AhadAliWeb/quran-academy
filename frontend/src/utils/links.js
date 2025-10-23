@@ -91,6 +91,12 @@ const adminLinks = [
         text: "UnApproved Users",
         icon: CheckCircle,
         to: `${ADMIN_BASE_PATH}/unapproved-users`
+    },
+    {
+        id: 'enrollments',
+        text: "Enrollments",
+        icon: ClipboardList,
+        to: `${ADMIN_BASE_PATH}/enrollments`
     }
 ];
 

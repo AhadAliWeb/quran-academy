@@ -20,7 +20,7 @@ const startNotificationScheduler = () => {
 };
 
 const checkAndSendNotifications = async () => {
-  const now = moment().tz('Asia/Karachi');;
+  const now = moment().tz('Asia/Karachi');
   const currentDay = now.format('dddd');
   const currentTime = now.format('HH:mm');
   const notificationTime = getTimeMinutesBefore(currentTime, +15); // Time + 15 minutes

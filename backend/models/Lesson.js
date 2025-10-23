@@ -22,7 +22,6 @@ const lessonSchema = new mongoose.Schema(
       ref: "Course",
       required: true,
     },
-
     // Lesson details
     chapterNumber: { type: Number, required: false },
     pageNumber: { type: Number, required: false },

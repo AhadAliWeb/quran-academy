@@ -134,7 +134,7 @@ const TodayClasses = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {classes.map((clas, index) => (
+              {classes.length > 0 && classes.map((clas, index) => (
                 <tr key={clas._id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {index + 1}
@@ -150,7 +150,7 @@ const TodayClasses = () => {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900 font-mono">
-                    {clas.student.studentId || `STU10${index + 1}`}
+                    {clas.student.id || 'N/A'}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {clas.course.name}
@@ -262,7 +262,7 @@ const TodayClasses = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {classes.map((clas, index) => (
+              {classes.length > 0 && classes.map((clas, index) => (
                 <tr key={clas._id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-3 py-2 text-xs text-gray-900">
                     {index + 1}

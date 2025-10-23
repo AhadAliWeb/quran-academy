@@ -93,6 +93,7 @@ const deleteTeacher = async (id) => {
     fetchTeachers();
   }, []);
 
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
       <div className="max-w-7xl mx-auto">
@@ -176,7 +177,7 @@ const deleteTeacher = async (id) => {
                           <div className="flex items-center">
                             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                               <span className="text-white font-medium">
-                                {teacher.name?.charAt(0)?.toUpperCase() || 'T'}
+                                {teacher.name?.trim().charAt(0)?.toUpperCase()}
                               </span>
                             </div>
                             <div className="ml-3">

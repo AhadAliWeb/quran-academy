@@ -3,6 +3,7 @@ const StatusCodes = require("http-status-codes")
 const { NotFoundError } = require("../errors")
 const Enrollment = require("../models/enrollment")
 const Attendance = require("../models/attendance");
+const moment = require("moment-timezone")
 
 const AddEnrollment  = asyncHandler(async(req, res) => {
 
@@ -22,84 +23,25 @@ const AddEnrollment  = asyncHandler(async(req, res) => {
 const AllEnrollments = asyncHandler(async(req, res) => {
 
     
-    const enrollments = await Enrollment.find()
+    const enrollments = await Enrollment.find().populate("student", "name").populate("course", "name")
 
     res.status(StatusCodes.OK).json({enrollments})
 
 })
 
-
-// const AllEnrollmentsByToday = asyncHandler(async (req, res) => {
-
-//   const teacherId = req.user._id;
-
-//   // Get today's day name
-//   const today = new Date();
-//   const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-//   const todayName = dayNames[today.getDay()];
-
-//   // const courses = await Enrollment.aggregate([
-//   //   {
-//   //     $match: {
-//   //       "schedule.days": todayName,
-//   //       teacher: new mongoose.Types.ObjectId(teacherId),
-//   //     }
-//   //   },
-//   //   {
-//   //     $lookup: { // populate course details
-//   //       from: "courses",
-//   //       localField: "course",
-//   //       foreignField: "_id",
-//   //       as: "courseDetails"
-//   //     }
-//   //   },
-//   //   { $unwind: "$courseDetails" },
-//   //   {
-//   //     $group: {
-//   //       _id: "$courseDetails._id",      // group by course ID
-//   //       course: { $first: "$courseDetails" }, // take any course details
-//   //       schedule: { $first: "$schedule" }    // take any schedule
-//   //     }
-//   //   },
-//   //   {
-//   //     $project: {
-//   //       _id: 0,
-//   //       course: 1,
-//   //       schedule: 1
-//   //     }
-//   //   }
-//   // ]);
-
-//   const enrollments = await Enrollment.find({
-//     teacher: teacherId,
-//     "schedule.days": { $in: [todayName] }
-//   })
-//     .populate("course") // Gets all course fields
-//     .populate({
-//       path: "student",
-//       select: "name email status" // Only select name and email from student
-//     })
-//     .exec();
-
-//   if (!enrollments || enrollments.length === 0) {
-//     return res.status(StatusCodes.NOT_FOUND).json({ message: "No courses scheduled for today for this teacher" });
-//   }
-
-
-//   res.status(StatusCodes.OK).json({ enrollments, message: "Today's courses fetched successfully" });
-// });
-
 const AllEnrollmentsByToday = asyncHandler(async (req, res) => {
   const teacherId = req.user._id;
 
   // Get today's day name
-  const today = new Date();
+  const now = moment().tz('Asia/Karachi');
+  const today = now.format('dddd');
+
   const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const todayName = dayNames[today.getDay()];
+  const todayName = dayNames[now.day()];
 
   // Normalize date to midnight (so you can match Attendance by day)
-  const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-  const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+  const startOfDay = now.clone().startOf('day'); // 00:00:00
+  const endOfDay = now.clone().endOf('day');
 
   // Step 1: Fetch all enrollments for this teacher that are scheduled today
   const enrollments = await Enrollment.find({

@@ -4,18 +4,35 @@ const User = require("../models/userModel");
 const StudentProfile = require("../models/studentProfile");
 const NotFoundError = require("../errors/not-found");
 const BadRequestError = require("../errors/bad-request");
+const Counter = require("../models/counter")
 
 // Create a new student
 const createStudent = asyncHandler(async (req, res) => {
   const { studentName, email, password, fees, phoneNumber, country, gender, age } = req.body;
 
-  console.log(req.body)
+  let count;
+
+  const counter = await Counter.findOne({name: "student"})
+
+
+  if(counter) {
+    
+    counter.count++;
+    count = counter.count;
+
+    await counter.save()
+  }
+  else {
+    await Counter.create({name: "student", count: 101})
+    count = 101
+  }
 
   const exists = await User.findOne({ email });
   if (exists) throw new BadRequestError("Student with this email already exists");
 
   // create user
   const user = await User.create({
+    id: count,
     name: studentName,
     email,
     password,
@@ -88,6 +105,7 @@ const getStudentById = asyncHandler(async (req, res) => {
 
 // Update student
 const updateStudent = asyncHandler(async (req, res) => {
+
   const { id } = req.params;
   const { name, email, password, fees, age, phoneNumber, country, gender, status } = req.body;
 

@@ -83,6 +83,7 @@ const handlePageChange = (newPage) => {
 const formatStudentData = (student) => {
   return {
     id: student._id,
+    sid: student.id,
     name: student.name || 'N/A',  // Use name directly instead of firstName + lastName
     email: student.email || 'N/A',
     phoneNumber: student.phoneNumber || 'N/A',
@@ -285,6 +286,9 @@ const handleDelete = async (studentId) => {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Student
                 </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Student ID
+                </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                   Email
                 </th>
@@ -307,7 +311,11 @@ const handleDelete = async (studentId) => {
                     <td className="px-4 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                        {/* <div className="text-sm text-gray-500">{student.email}</div> */}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 hidden md:table-cell">
+                      <div className="flex flex-wrap gap-1">
+                        {student.sid || 'N/A'}
                       </div>
                     </td>
                     <td className="px-4 py-4 hidden md:table-cell">
