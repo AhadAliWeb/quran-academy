@@ -316,9 +316,8 @@ const addBulkStudents = asyncHandler(async(req, res) => {
 
 const getMe = asyncHandler(async(req, res) => {
 
-  // const user = req.user;
+  const user = req.user;
 
-  const user = await User.create({name: "Tariq", email: "tariq@gmail.com", password: "123456", role: "admin"})
 
   res.status(StatusCodes.OK).json({user: {name: user.name, email: user.email, role: user.role, isApproved: user.isApproved, id: user._id}})
 
