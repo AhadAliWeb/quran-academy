@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 const StatusCodes = require("http-status-codes");
 const { NotFoundError, BadRequestError } = require("../errors");
+const Counter = require("../models/counter")
 
 
 
