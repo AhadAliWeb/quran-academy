@@ -131,13 +131,6 @@ const EditTeacher = () => {
     navigate('/admin/dashboard/all-teachers');
   };
 
-  const resetForm = () => {
-    fetchTeacherData();
-    setErrors({});
-    setSuccess('');
-    setError('');
-  };
-
   if (pageLoading) {
     return (
       <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
@@ -340,22 +333,12 @@ const EditTeacher = () => {
                 {loading ? 'Updating Teacher...' : 'Update Teacher'}
               </button>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={resetForm}
-                  disabled={loading}
-                  className="px-4 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-                >
-                  Reset Form
-                </button>
-
                 <button
                   onClick={handleBack}
                   className="px-4 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
-              </div>
             </div>
           </div>
         </div>

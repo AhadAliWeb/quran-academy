@@ -32,7 +32,6 @@ const checkAndSendNotifications = async () => {
     'schedule.days': currentDay
   })
     .populate('student')
-    .populate('course')
     .lean()
     .exec();
 
@@ -61,8 +60,8 @@ const sendNotificationToStudent = async (enrollment) => {
 
     const message = {
       notification: {
-        title: `${enrollment.course.name} Starting Soon`,
-        body: `Your class starts in 15 minutes at ${enrollment.schedule.time}`
+        title: `Reminder: Your class starts in 15 minutes!`,
+        body: `Don’t forget to join on time. Your teacher will be waiting for you!`
       },
       data: {
         enrollmentId: enrollment._id.toString(),
