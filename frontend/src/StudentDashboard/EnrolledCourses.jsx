@@ -78,9 +78,9 @@ const EnrolledCourses = () => {
                   </Link>
 
                   {/* Google Meet Link */}
-                  {course?.meet.link && (
+                  {course.meet?.link && (
                     <a 
-                      href={course?.meet.link}
+                      href={course.meet?.link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 md:py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm md:text-base shadow-sm hover:shadow-md"
