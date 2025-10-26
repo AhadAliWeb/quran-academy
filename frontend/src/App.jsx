@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { useEffect } from 'react'
 import { setUserInfo, clearUserInfo } from './slices/userSlice.js';
 import axios from 'axios'
+import Test from './pages/Test.jsx'
 
 
 
@@ -48,6 +49,10 @@ function App() {
           {
             path: "/",
             element: <Home />,
+          },
+          {
+            path: "/test",
+            element: <Test />
           },
           {
             path: "/login",

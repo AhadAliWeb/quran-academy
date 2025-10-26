@@ -91,13 +91,14 @@ const StudentCourseForm = () => {
   const handleSubmit = () => {
     
     axios.post("/api/v1/enrollment", {student: selectedStudent._id, teacher: selectedTeacher._id, course: selectedCourse._id, duration: classDuration.split(" ")[0], days: selectedDays, time: classTime})
-    .then(res => showAlert(res.data.msg, "success")).catch(err => showAlert(err.response.data.msg, "danger"))
+    .then(res => showAlert(res.data.msg, "success")).catch(err => showAlert(err.response.data.msg, "danger")).finally(() => resetForm())
 
   };
 
   const resetForm = () => {
     setSelectedStudent(null);
     setSelectedCourse(null);
+    setSelectedTeacher(null)
     setSelectedDays([]);
     setClassDuration('');
     setClassTime('');
@@ -110,6 +111,7 @@ const StudentCourseForm = () => {
       {
         alert &&
         <Alert
+          key={alert.id}
           message={alert.message}
           theme={alert.theme}
         />

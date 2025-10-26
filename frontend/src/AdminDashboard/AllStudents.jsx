@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, Eye, Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { Link } from 'react-router';
+import ConfirmationDialog from '../components/ConfirmationDialog';
 
 const AllStudents = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -13,6 +14,8 @@ const AllStudents = () => {
   const [totalStudents, setTotalStudents] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 10;
+  const [dialog, setDialog] = useState(null);
+  const [studentToDelete, setStudentToDelete] = useState(null)
 
 
 
@@ -89,117 +92,39 @@ const formatStudentData = (student) => {
     phoneNumber: student.phoneNumber || 'N/A',
     courses: student.courses || student.enrolledCourses || [],
     fees: student.fees || student.tuitionFees || 0,
-    time: student.classTime || student.schedule?.time || 'N/A',
-    day: student.classDay || student.schedule?.day || 'N/A',
     status: student.status || 'Active'
   };
 };
 
-const handleDelete = async (studentId) => {
-  if (window.confirm('Are you sure you want to delete this student?')) {
+const handleDelete = (studentId) => {
+
+  setDialog({type: 'delete', message: "All Student Data, including Attendance, Lesons, Enrollments will be Deleted"})
+
+  setStudentToDelete(studentId)
+
+};
+
+const confirmDelete = async (confirm) => {
+
+
+  if(confirm) {
+
     try {
-      await axios.delete(`/api/v1/students/${studentId}`);
+      await axios.delete(`/api/v1/students/${studentToDelete}`);
       fetchStudents(currentPage, searchTerm, statusFilter);
     } catch (err) {
       console.error('Error deleting student:', err);
       alert(err.response?.data?.message || 'Failed to delete student');
     }
   }
-};
+  else {
+    setStudentToDelete(null)
+  }
 
+  setDialog(null)
 
+} 
 
-  // Sample student data
-  const studentsData = [
-    {
-      id: 1,
-      name: 'John Smith',
-      email: 'john.smith@email.com',
-      courses: ['Mathematics', 'Physics'],
-      fees: 1200,
-      time: '9:00 AM',
-      day: 'Monday',
-      status: 'Active'
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      email: 'sarah.j@email.com',
-      courses: ['Chemistry', 'Biology'],
-      fees: 1500,
-      time: '2:00 PM',
-      day: 'Tuesday',
-      status: 'Demo'
-    },
-    {
-      id: 3,
-      name: 'Mike Davis',
-      email: 'mike.davis@email.com',
-      courses: ['Computer Science'],
-      fees: 800,
-      time: '11:00 AM',
-      day: 'Wednesday',
-      status: 'Left'
-    },
-    {
-      id: 4,
-      name: 'Emily Wilson',
-      email: 'emily.w@email.com',
-      courses: ['English', 'History', 'Art'],
-      fees: 2000,
-      time: '3:00 PM',
-      day: 'Thursday',
-      status: 'Active'
-    },
-    {
-      id: 5,
-      name: 'David Brown',
-      email: 'david.brown@email.com',
-      courses: ['Mathematics'],
-      fees: 600,
-      time: '10:00 AM',
-      day: 'Friday',
-      status: 'Demo'
-    },
-    {
-      id: 6,
-      name: 'Lisa Anderson',
-      email: 'lisa.a@email.com',
-      courses: ['Physics', 'Chemistry'],
-      fees: 1300,
-      time: '1:00 PM',
-      day: 'Monday',
-      status: 'Active'
-    },
-    {
-      id: 7,
-      name: 'Tom Wilson',
-      email: 'tom.w@email.com',
-      courses: ['Biology'],
-      fees: 700,
-      time: '4:00 PM',
-      day: 'Tuesday',
-      status: 'Left'
-    },
-    {
-      id: 8,
-      name: 'Anna Martinez',
-      email: 'anna.m@email.com',
-      courses: ['Art', 'Music'],
-      fees: 900,
-      time: '11:30 AM',
-      day: 'Wednesday',
-      status: 'Active'
-    }
-  ];
-
-  // Filter students based on search term and status
-  const filteredStudents = studentsData.filter(student => {
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || student.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
 
   // Pagination
   // const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
@@ -242,6 +167,14 @@ const handleDelete = async (studentId) => {
 
   return (
     <div className="p-4 lg:p-6 bg-gray-50 min-h-screen">
+      {
+        dialog &&
+        <ConfirmationDialog
+          type={dialog.type}
+          message={dialog.message}
+          onConfirm={confirmDelete}
+        />
+      }
       <div className="bg-white rounded-lg shadow-sm">
         {/* Header */}
         <div className="p-4 lg:p-6 border-b border-gray-200">
@@ -313,7 +246,7 @@ const handleDelete = async (studentId) => {
                         <div className="text-sm font-medium text-gray-900">{student.name}</div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 hidden md:table-cell">
+                    <td className="px-4 py-4 md:table-cell">
                       <div className="flex flex-wrap gap-1">
                         {student.sid || 'N/A'}
                       </div>
@@ -330,10 +263,6 @@ const handleDelete = async (studentId) => {
                       <span className={getStatusBadge(student.status)}>
                         {student.status}
                       </span>
-                      {/* Show schedule on mobile/tablet */}
-                      <div className="lg:hidden mt-1 text-xs text-gray-500">
-                        {student.time} - {student.day}
-                      </div>
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">

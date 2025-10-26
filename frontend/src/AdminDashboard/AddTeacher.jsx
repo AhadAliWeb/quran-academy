@@ -3,6 +3,8 @@ import {
   User, Mail, Lock, DollarSign, Save, ArrowLeft, 
   Eye, EyeOff, CheckCircle, AlertCircle, Loader 
 } from 'lucide-react';
+import { useAlert } from '../hooks/useAlert';
+import Alert from '../components/Alert';
 
 const AddTeacher = () => {
   const [formData, setFormData] = useState({
@@ -15,9 +17,10 @@ const AddTeacher = () => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState('');
-  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  const { alert, showAlert } = useAlert()
+
 
   // Validate form
   const validateForm = () => {
@@ -85,8 +88,6 @@ const AddTeacher = () => {
     }
 
     setLoading(true);
-    setError('');
-    setSuccess('');
 
     try {
       const submitData = {
@@ -110,13 +111,13 @@ const AddTeacher = () => {
         throw new Error(data.msg || 'Failed to create teacher');
       }
 
-      setSuccess('Teacher created successfully!');
-      setFormData({ name: '', email: '', password: '', salary: '', gender: '', age: '' });
-
+      showAlert('Teacher created successfully!', 'success');
+      
     } catch (err) {
-      setError(err.message || 'Failed to create teacher');
+      showAlert(err.message || 'Failed to create teacher', 'danger');
     } finally {
       setLoading(false);
+      setFormData({ name: '', email: '', password: '', salary: '', gender: '', age: '' });
     }
   };
 
@@ -127,12 +128,20 @@ const AddTeacher = () => {
   const resetForm = () => {
     setFormData({ name: '', email: '', password: '', salary: '', gender: '', age: '' });
     setErrors({});
-    setSuccess('');
-    setError('');
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+
+      {
+        alert &&
+          <Alert
+            key={alert.id}
+            message={alert.message}
+            theme={alert.theme}
+          />
+      }
+
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -154,22 +163,6 @@ const AddTeacher = () => {
             </div>
           </div>
         </div>
-
-        {/* Success Message */}
-        {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <p className="text-green-700">{success}</p>
-          </div>
-        )}
-
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-red-600" />
-            <p className="text-red-700">{error}</p>
-          </div>
-        )}
 
         {/* Form */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

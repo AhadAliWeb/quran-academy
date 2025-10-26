@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler")
 const StatusCodes = require("http-status-codes")
-const { NotFoundError } = require("../errors")
+const { NotFoundError, BadRequestError } = require("../errors")
 const Enrollment = require("../models/enrollment")
 const Attendance = require("../models/attendance");
 const moment = require("moment-timezone")
@@ -9,7 +9,11 @@ const AddEnrollment  = asyncHandler(async(req, res) => {
 
     const { student, teacher, course, days, duration, time} = req.body
 
-    console.log(student, teacher, course, days, duration, time)
+    const isEnrolled = await Enrollment.findOne({student, course});
+
+    console.log(isEnrolled)
+
+    if(isEnrolled) throw new BadRequestError("Student is Already Enrolled")
 
     const enrollment = await Enrollment.create({ student, teacher, course, schedule: { days, duration, time } })
 
@@ -49,7 +53,6 @@ const updateEnrollment = asyncHandler(async (req, res) => {
   await enrollment.save()
 
   res.status(StatusCodes.OK).json({msg: "Enrollment Updated Successfully"})
-
 
 })
 
@@ -109,7 +112,7 @@ const AllEnrollmentsByToday = asyncHandler(async (req, res) => {
     .populate("course")
     .populate({
       path: "student",
-      select: "name email status"
+      select: "name id email status"
     })
     .exec();
 

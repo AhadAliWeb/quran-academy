@@ -150,7 +150,7 @@ const AddStudentPage = () => {
     axios.post('/api/v1/students', formData).then(res => {
       showAlert(res.data.msg, "success")
     }).catch(err => {
-      showAlert("Error Adding Student, Something went Wrong", "danger")
+      showAlert(err.response.data.msg, "danger")
     }).finally(() => setIsSubmitting(false))
     
   };
@@ -212,6 +212,7 @@ const AddStudentPage = () => {
       {
         alert &&
         <Alert
+          key={alert.id}
           message={alert.message}
           theme={alert.theme}
         />

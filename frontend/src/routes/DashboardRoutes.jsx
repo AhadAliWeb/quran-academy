@@ -148,7 +148,7 @@ export const AdminDashboardRoutes = [
             },
             {
                 path: "enrollments/:enrollmentId",
-                element: <EnrollmentDetailsEdit />
+                element: <EnrollmentDetailsEdit  />
             }
         ]
     }

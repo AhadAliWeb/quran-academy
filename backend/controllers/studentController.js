@@ -4,7 +4,10 @@ const User = require("../models/userModel");
 const StudentProfile = require("../models/studentProfile");
 const NotFoundError = require("../errors/not-found");
 const BadRequestError = require("../errors/bad-request");
-const Counter = require("../models/counter")
+const Counter = require("../models/counter");
+const Enrollment = require("../models/enrollment");
+const Attendance = require("../models/attendance")
+const Lesson = require("../models/Lesson");
 
 // Create a new student
 const createStudent = asyncHandler(async (req, res) => {
@@ -145,7 +148,12 @@ const deleteStudent = asyncHandler(async (req, res) => {
   const student = await User.findOne({ _id: id, role: "student" });
   if (!student) throw new NotFoundError(`No student found with id: ${id}`);
 
-  await StudentProfile.deleteOne({ user: id });
+  const enrollments = await Enrollment.deleteMany({student: student._id});
+
+  const attendances = await Attendance.deleteMany({student: student._id});
+
+  const lessons = await Lesson.deleteMany({student: student._id});
+
   await student.deleteOne();
 
   res.status(StatusCodes.OK).json({ msg: "Student deleted successfully" });
