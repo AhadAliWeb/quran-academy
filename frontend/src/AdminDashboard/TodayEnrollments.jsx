@@ -1,43 +1,67 @@
-import React, { useState } from 'react';
-import { Edit2, Trash2, Calendar, Clock, Link2, Link, View, EyeIcon, LucideEye, ScanEye, ScanEyeIcon, LucideEyeOff, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Edit2, Trash2, Calendar, Clock, Link2, Eye, X, Edit } from 'lucide-react';
+import axios from "axios"
+import { Link } from "react-router"
 
 export default function TodayEnrollments() {
-  const [enrollments] = useState([
-    {
-      schedule: {
-        days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-        time: "11:00",
-        duration: 30,
-        notificationSend: false
-      },
-      _id: "68f9bf4a6215717087c2ed31",
-      student: {
-        _id: "68f90d2610d9da12325c5638",
-        name: "Usman"
-      },
-      teacher: "68e3ac28090658a6fe8c5542",
-      course: {
-        _id: "68ca84f34e6a6d62d1d09223",
-        name: "Translation"
-      },
-      createdAt: "2025-10-23T05:38:18.971Z",
-      updatedAt: "2025-10-23T05:38:18.971Z",
-      __v: 0
-    }
-  ]);
+  const [enrollments, setEnrollments] = useState([]);
 
-  const formatDays = (days) => {
-    if (days.length === 5 && days.includes("Monday") && days.includes("Friday")) {
-      return "Mon - Fri";
-    }
-    return days.map(d => d.substring(0, 3)).join(", ");
+  const initialData = {
+    link: "",
+    enrollmentId: "",
+    time: ""
+  }
+
+  const options = {
+    weekday: 'long',    // e.g., "Friday"
+    month: 'long',      // e.g., "October"
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   };
 
-  const handleEdit = (id) => {
-    console.log('Edit enrollment:', id);
+  const [data, setData] = useState(initialData);
+  const [showModal, setShowModal] = useState(false);
+
+  const getEnrollments = () => {
+
+    axios.get("/api/v1/enrollment").then(res => setEnrollments(res.data.enrollments)).catch(err => console.log(err))
+  }
+
+  useEffect(() => {
+
+    getEnrollments();
+  },[])
+
+  const addLink = (id, time, link) => {
+    setShowModal(true);
+
+    const localTime = new Date(time).toLocaleString('en-US', options);
+
+    setData(prev => ({...prev, enrollmentId: id, time: localTime, link}))
+
   };
 
-  const handleDelete = (id) => {
+  console.log(data)
+
+  const handleSaveLink = () => {
+
+    axios.post("/api/v1/enrollment/update-link", {enrollmentId: data.enrollmentId, link: data.link}).then(res => {
+      getEnrollments()
+    }).catch(err => console.log(err))
+
+
+    // Add your API call here to save the link
+    setShowModal(false);
+    setData(initialData);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setData(initialData);
+  };
+
+  const viewEnrollment = (id) => {
     console.log('Delete enrollment:', id);
   };
 
@@ -93,7 +117,7 @@ export default function TodayEnrollments() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-gray-600 text-sm">
-                    {enrollment.schedule.days.map(item  => item.substring(0, 3).padEnd(3, " ")).join(', ')}
+                      {enrollment.schedule.days.map(item  => item.substring(0, 3).padEnd(3, " ")).join(', ')}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center text-gray-600">
@@ -104,19 +128,17 @@ export default function TodayEnrollments() {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">
                         <button
-                          onClick={() => handleEdit(enrollment._id)}
+                          onClick={() => addLink(enrollment._id, enrollment.meet?.time, enrollment.meet?.link)}
                           className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-                          aria-label="Edit"
                         >
-                          <Link className="w-4 h-4" />
+                          <Link2 className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => handleDelete(enrollment._id)}
+                        <Link to={`/admin/dashboard/enrollments/${enrollment._id}`}
+                          onClick={() => viewEnrollment(enrollment._id)}
                           className="p-2 rounded-lg bg-teal-50 text-primary hover:bg-teal-100 transition-colors"
-                          aria-label="Delete"
                         >
-                          <Eye className="w-4 h-4" />
-                        </button>
+                          <Edit2 className="w-4 h-4" />
+                        </Link>
                       </div>
                     </td>
                   </tr>
@@ -136,7 +158,7 @@ export default function TodayEnrollments() {
               <div className="bg-primary px-4 py-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center text-white font-semibold">
+                    <div className="w-10 h-10 rounded-full bg-secondary bg-opacity-20 flex items-center justify-center text-white font-semibold">
                       {enrollment.student.name.charAt(0)}
                     </div>
                     <div className="ml-3">
@@ -144,7 +166,7 @@ export default function TodayEnrollments() {
                         {enrollment.student.name}
                       </h3>
                       <p className="text-white text-opacity-80 text-xs font-mono">
-                        ID: {enrollment.student._id.substring(0, 10)}...
+                        ID: {enrollment.student.id || 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -154,7 +176,7 @@ export default function TodayEnrollments() {
               <div className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-500 text-sm">Course</span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary bg-opacity-10 text-primary">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary bg-opacity-10 text-white">
                     {enrollment.course.name}
                   </span>
                 </div>
@@ -165,7 +187,7 @@ export default function TodayEnrollments() {
                     Days
                   </span>
                   <span className="text-gray-800 text-sm font-medium">
-                    {formatDays(enrollment.schedule.days)}
+                    {enrollment.schedule.days.map(item  => item.substring(0, 3).padEnd(3, " ")).join(', ')}
                   </span>
                 </div>
                 
@@ -181,19 +203,18 @@ export default function TodayEnrollments() {
                 
                 <div className="flex gap-2 pt-2 border-t border-gray-100">
                   <button
-                    onClick={() => handleEdit(enrollment._id)}
+                    onClick={() => addLink(enrollment._id, enrollment.meet.time, enrollment.meet.link)}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors font-medium text-sm"
+                  >
+                    <Link2 className="w-4 h-4" />
+                    Add Link
+                  </button>
+                  <Link to={`/admin/dashboard/enrollments/${enrollment._id}`}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-teal-50 text-primary hover:bg-teal-100 transition-colors font-medium text-sm"
                   >
                     <Edit2 className="w-4 h-4" />
                     Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(enrollment._id)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-teal-50 text-primary hover:bg-red-100 transition-colors font-medium text-sm"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Delete
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -215,6 +236,56 @@ export default function TodayEnrollments() {
           </div>
         )}
       </div>
+
+      {/* Add Link Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-800">Add Meeting Link</h2>
+              <button
+                onClick={handleCloseModal}
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <div className='flex justify-between'>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Meeting Link
+                </label>
+                <span className='block text-sm font-medium text-gray-700 mb-2'>Last Time Added: {data.time || "N/A"}</span>
+                </div>
+                <input
+                  type="url"
+                  value={data.link}
+                  onChange={(e) => setData(prev => ({...prev, link: e.target.value}))}
+                  placeholder="https://meet.google.com/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 p-6 border-t border-gray-200">
+              <button
+                onClick={handleCloseModal}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveLink}
+                className="flex-1 px-4 py-2 bg-teal-500 text-white rounded-lg font-medium hover:bg-teal-600 transition-colors"
+              >
+                Save Link
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -25,9 +25,9 @@ const editCourse = asyncHandler(async (req, res) => {
   const course = await Course.findById(id);
   if (!course) throw new NotFoundError(`No course found with id: ${id}`);
 
-  course.name = name || course.name;
-  course.image = image || course.image;
-  course.pdf = pdf || course.pdf;
+  course.name = name;
+  course.image = image;
+  course.pdf = pdf;
   await course.save();
 
   res

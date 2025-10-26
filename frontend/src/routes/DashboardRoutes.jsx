@@ -24,6 +24,7 @@ import AddTeacher from "../AdminDashboard/AddTeacher";
 import EditTeacher from "../AdminDashboard/EditTeacher";
 import { ProtectedRoute } from "../components/ProtectedRoute"
 import TodayEnrollments from "../AdminDashboard/TodayEnrollments";
+import EnrollmentDetailsEdit from "../AdminDashboard/EnrollmentDetailsEdit";
 
 
 export const StudentDashboardRoutes = [
@@ -144,6 +145,10 @@ export const AdminDashboardRoutes = [
             {
                 path: "enrollments",
                 element: <TodayEnrollments />
+            },
+            {
+                path: "enrollments/:enrollmentId",
+                element: <EnrollmentDetailsEdit />
             }
         ]
     }

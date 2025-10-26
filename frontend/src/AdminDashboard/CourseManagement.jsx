@@ -70,8 +70,6 @@ const CourseManagement = () => {
     const formData = new FormData();
     formData.append('pdf', file);
 
-    console.log(formData)
-
     try {
       const res = await axios.post('/api/v1/upload/pdf', formData, {
         headers: {
@@ -147,7 +145,10 @@ const CourseManagement = () => {
   try {
     const publicId = extractPublicId(coursePdfUrl);
     const response = axios.delete(`/api/v1/upload/pdf/${encodeURIComponent(publicId)}`);
-    console.log("Deleted:", response.data);
+    
+    setCoursePdfUrl("")
+    setCoursePdfName("")
+
     return response.data;
   } catch (error) {
     console.error("Delete failed:", error.response?.data || error.message);
@@ -168,6 +169,9 @@ const CourseManagement = () => {
       image: courseImageUrl,
       pdf: coursePdfUrl
     };
+
+
+    console.log(courseData)
 
     if (editingCourse) {
       axios.put(`/api/v1/courses/${editingCourse._id}`, courseData)

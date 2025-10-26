@@ -134,7 +134,7 @@ const StudentDashHome = () => {
                   <div className="flex items-center justify-between mb-4">
 
                     <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover/course:text-primary transition-colors duration-300">
-                      {course.course.name}
+                      {course?.course.name || 'N/A'}
                     </h3>
                     <div className="p-3 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl">
                       <Award className="h-6 w-6 text-primary" />

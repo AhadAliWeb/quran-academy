@@ -17,13 +17,71 @@ const AddEnrollment  = asyncHandler(async(req, res) => {
 
     res.status(StatusCodes.OK).json({msg: "Enrollment Added Successfully"})
 
+});
+
+const getSingleEnrollment = asyncHandler(async(req,res) => {
+
+  const { enrollmentId } = req.params
+
+  const enrollment = await Enrollment.findById(enrollmentId).populate("student").populate("teacher").populate("course")
+
+  if(!enrollment) throw new NotFoundError("No Enrollment Found")
+
+  res.status(StatusCodes.OK).json({enrollment, msg: "Enrollment Found Successfully"})
+});
+
+
+const updateEnrollment = asyncHandler(async (req, res) => {
+
+  const { schedule, meet } = req.body;
+
+  const { enrollmentId } = req.params
+
+  const enrollment = await Enrollment.findById(enrollmentId)
+
+  if(!enrollment) throw new NotFoundError("Enrollment Not Found")
+
+  
+  enrollment.schedule = schedule;
+
+  enrollment.meet = meet;
+
+  await enrollment.save()
+
+  res.status(StatusCodes.OK).json({msg: "Enrollment Updated Successfully"})
+
+
+})
+
+
+const updateEnrollmentLink = asyncHandler(async(req, res) => {
+
+  const { enrollmentId, link } = req.body;
+
+
+  const enrollment = await Enrollment.findById(enrollmentId)
+
+  if(!enrollment) throw new NotFoundError("No Courses Found")
+
+  const meet = {
+    link,
+    time: new Date()
+  }
+
+  enrollment.meet = meet;
+
+  await enrollment.save();
+
+
+  res.status(StatusCodes.OK).json({msg: "Link Updated Successfully"})
+
 })
 
 
 const AllEnrollments = asyncHandler(async(req, res) => {
 
     
-    const enrollments = await Enrollment.find().populate("student", "name").populate("course", "name")
+    const enrollments = await Enrollment.find().populate("student", "name id").populate("course", "name")
 
     res.status(StatusCodes.OK).json({enrollments})
 
@@ -203,7 +261,7 @@ const displayStudentEnrollments = asyncHandler(async(req, res) => {
 
   const { studentId } = req.params;
 
-  const courses = await Enrollment.find({ student: studentId}).select("_id").populate("course")
+  const courses = await Enrollment.find({ student: studentId}).select("_id meet").populate("course")
 
   if(courses.length === 0) throw new NotFoundError("No Courses Found")
 
@@ -235,4 +293,4 @@ const getReportFields = asyncHandler(async (req, res) => {
 })
 
 
-module.exports = { AddEnrollment, AllEnrollments, addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments, getEnrollmentByTeacher, getReportFields }
+module.exports = { AddEnrollment, getSingleEnrollment, AllEnrollments, updateEnrollmentLink, updateEnrollment,  addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments, getEnrollmentByTeacher, getReportFields }

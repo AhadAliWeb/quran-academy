@@ -17,6 +17,14 @@ const enrollmentSchema = mongoose.Schema(
       ref: "Course",
       required: true,
     },
+    meet: {
+      link: {
+        type: String,
+      },
+      time: {
+        type: Date
+      }
+    },
     schedule: {
         days: {
           type: [String], // ["Monday", "Tuesday"]
