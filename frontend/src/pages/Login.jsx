@@ -90,6 +90,7 @@ const LoginPage = () => {
       {
         alert &&
         <Alert
+          key={alert.id}
           message={alert.message}
           theme={alert.theme}
         />

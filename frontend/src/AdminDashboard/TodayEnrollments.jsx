@@ -2,9 +2,16 @@ import { useState, useEffect } from 'react';
 import { Edit2, Trash2, Calendar, Clock, Link2, Eye, X, Edit } from 'lucide-react';
 import axios from "axios"
 import { Link } from "react-router"
+import ConfirmationDialog from '../components/ConfirmationDialog';
+import Alert from "../components/Alert";
+import { useAlert } from "../hooks/useAlert"
 
 export default function TodayEnrollments() {
   const [enrollments, setEnrollments] = useState([]);
+  const [enrollmentToDelete, setEnrollmentToDelete] = useState(null);
+  const [dialog, setDialog] = useState(null);
+  const [filter, setFilter] = useState("today")
+  const { alert, showAlert } = useAlert()
 
   const initialData = {
     link: "",
@@ -25,13 +32,13 @@ export default function TodayEnrollments() {
 
   const getEnrollments = () => {
 
-    axios.get("/api/v1/enrollment").then(res => setEnrollments(res.data.enrollments)).catch(err => console.log(err))
+    axios.get(`/api/v1/enrollment?filter=${filter}`).then(res => setEnrollments(res.data.enrollments)).catch(err => console.log(err))
   }
 
   useEffect(() => {
 
     getEnrollments();
-  },[])
+  },[filter])
 
   const addLink = (id, time, link) => {
     setShowModal(true);
@@ -41,8 +48,6 @@ export default function TodayEnrollments() {
     setData(prev => ({...prev, enrollmentId: id, time: localTime, link}))
 
   };
-
-  console.log(data)
 
   const handleSaveLink = () => {
 
@@ -61,22 +66,91 @@ export default function TodayEnrollments() {
     setData(initialData);
   };
 
-  const viewEnrollment = (id) => {
-    console.log('Delete enrollment:', id);
-  };
+
+  const handleDelete = (enrollmentId) => {
+
+    setEnrollmentToDelete(enrollmentId);
+
+    setDialog({ type: "delete", message: "Warning! All Data Including Attendance and Lessons will be deleted"});
+
+  }
+
+  const confirmDelete = (confirm) => {
+
+    if(confirm) {
+
+      axios.delete(`/api/v1/enrollment/delete/${enrollmentToDelete}`).then(res => {
+        showAlert(res.data.msg, "danger")
+        getEnrollments()
+      }).catch(err => console.log(err))
+    }
+
+    setDialog(null)
+    setEnrollmentToDelete(null)
+
+  } 
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+
+      {
+        dialog &&
+          <ConfirmationDialog
+            type={dialog.type}
+            message={dialog.message}
+            onConfirm={confirmDelete}
+          />
+      }
+
+      {
+        alert &&
+          <Alert
+            key={alert.id}
+            theme={alert.theme}
+            message={alert.message}
+          />
+      }
+
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+
+      <div className="mb-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-1">
             Student Enrollments
           </h1>
           <p className="text-gray-600">
             Manage and view all student course enrollments
           </p>
         </div>
+
+        {/* Toggle Buttons */}
+        <div className="flex gap-3">
+            <button
+              onClick={() => setFilter("all")}
+              className={`px-4 py-2 rounded-xl font-medium transition-colors duration-200 cursor-pointer ${
+                filter === "all"
+                  ? "bg-primary text-white"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilter("today")}
+              className={`px-4 py-2 rounded-xl font-medium transition-colors duration-200 cursor-pointer ${
+                filter === "today"
+                  ? "bg-primary text-white"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+              }`}
+            >
+              Today
+            </button>
+          </div>
+        </div>
+      </div>
 
         {/* Desktop Table View */}
         <div className="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
@@ -134,13 +208,13 @@ export default function TodayEnrollments() {
                           <Link2 className="w-4 h-4" />
                         </button>
                         <Link to={`/admin/dashboard/enrollments/${enrollment._id}`}
-                          onClick={() => viewEnrollment(enrollment._id)}
                           className="p-2 rounded-lg bg-teal-50 text-primary hover:bg-teal-100 transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </Link>
                         <button
                           className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                          onClick={() => handleDelete(enrollment._id)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -221,7 +295,7 @@ export default function TodayEnrollments() {
                     Edit
                   </Link>
                   <button
-                    onClick={() => addLink(enrollment._id, enrollment.meet.time, enrollment.meet.link)}
+                    onClick={() => handleDelete(enrollment._id)}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors font-medium text-sm"
                   >
                     <Trash2 className="w-4 h-4" />

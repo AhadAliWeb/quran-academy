@@ -4,6 +4,8 @@ import { X, CheckCircle, AlertTriangle, XCircle, Info } from 'lucide-react';
 const Alert = ({ message, theme = 'info', onClose, autoClose = true, duration = 5000 }) => {
   const [isVisible, setIsVisible] = useState(true);
 
+  console.log(theme)
+
   useEffect(() => {
     if (autoClose) {
       const timer = setTimeout(() => {

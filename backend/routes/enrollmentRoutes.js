@@ -1,5 +1,5 @@
 const express = require("express")
-const { AddEnrollment, AllEnrollments, addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments, getEnrollmentByTeacher, getReportFields, updateEnrollmentLink, getSingleEnrollment, updateEnrollment } = require("../controllers/enrollementController")
+const { AddEnrollment, AllEnrollments, addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments, getEnrollmentByTeacher, getReportFields, updateEnrollmentLink, getSingleEnrollment, updateEnrollment, deleteEnrollment } = require("../controllers/enrollementController")
 const { protect, authorizePermissions } = require("../middleware/authMiddleware")
 const router = express.Router()
 
@@ -20,7 +20,9 @@ router.get('/teacher-enrollments/:teacherId', protect, authorizePermissions("tea
 
 router.get('/:enrollmentId', protect, authorizePermissions("admin"), getSingleEnrollment);
 
-router.put("/update/:enrollmentId", protect, authorizePermissions("admin"), updateEnrollment)
+router.put("/update/:enrollmentId", protect, authorizePermissions("admin"), updateEnrollment);
+
+router.delete("/delete/:enrollmentId", protect, authorizePermissions("admin"), deleteEnrollment)
 
 router.get("/fields/:id", getReportFields)
 

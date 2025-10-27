@@ -1,9 +1,10 @@
 const asyncHandler = require("express-async-handler")
 const StatusCodes = require("http-status-codes")
 const { NotFoundError, BadRequestError } = require("../errors")
-const Enrollment = require("../models/enrollment")
+const Enrollment = require("../models/enrollment");
 const Attendance = require("../models/attendance");
-const moment = require("moment-timezone")
+const Lesson = require("../models/Lesson");
+const moment = require("moment-timezone");
 
 const AddEnrollment  = asyncHandler(async(req, res) => {
 
@@ -81,14 +82,26 @@ const updateEnrollmentLink = asyncHandler(async(req, res) => {
 })
 
 
-const AllEnrollments = asyncHandler(async(req, res) => {
+const AllEnrollments = asyncHandler(async (req, res) => {
+  const { filter } = req.query;
 
-    
-    const enrollments = await Enrollment.find().populate("student", "name id").populate("course", "name")
+  // Get current day in Pakistan timezone
+  const currentDay = moment().tz("Asia/Karachi").format("dddd"); // e.g. "Tuesday"
 
-    res.status(StatusCodes.OK).json({enrollments})
+  let query = {};
 
-})
+  if (filter === "today") {
+    // Only find enrollments where today is included in schedule.days array
+    query = { "schedule.days": currentDay };
+  }
+
+  const enrollments = await Enrollment.find(query)
+    .populate("student", "name id")
+    .populate("course", "name")
+    .sort({ createdAt: -1 });
+
+  res.status(StatusCodes.OK).json({ enrollments });
+});
 
 const AllEnrollmentsByToday = asyncHandler(async (req, res) => {
   const teacherId = req.user._id;
@@ -295,5 +308,26 @@ const getReportFields = asyncHandler(async (req, res) => {
 
 })
 
+const deleteEnrollment = asyncHandler(async (req,res) => {
 
-module.exports = { AddEnrollment, getSingleEnrollment, AllEnrollments, updateEnrollmentLink, updateEnrollment,  addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments, getEnrollmentByTeacher, getReportFields }
+  const { enrollmentId } = req.params;
+
+  const enrollment = await Enrollment.findById(enrollmentId)
+
+  if(!enrollment) {
+    throw new NotFoundError("Enrollment Not Found")
+  } 
+
+  await Lesson.deleteMany({enrollment: enrollmentId})
+
+  await Attendance.deleteMany({enrollment: enrollmentId})
+
+
+  await enrollment.deleteOne()
+
+  res.status(StatusCodes.OK).json({msg: "Enrollment Deleted Successfully"})
+
+})
+
+
+module.exports = { AddEnrollment, getSingleEnrollment, AllEnrollments, updateEnrollmentLink, updateEnrollment,  addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments, getEnrollmentByTeacher, getReportFields, deleteEnrollment }
