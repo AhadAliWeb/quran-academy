@@ -26,7 +26,7 @@ const lessonSchema = new mongoose.Schema(
     chapterNumber: { type: Number, required: false },
     pageNumber: { type: Number, required: false },
     ayahLineNumber: { type: Number, required: false },
-    memorizationLessonNumber: { type: Number, required: false },
+    memorizationLessonNumber: { type: String, required: false },
 
     // Resource files (like images of pages/notes)
     imageUrls: [{ type: String }],

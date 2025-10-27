@@ -255,7 +255,7 @@ const AddLesson = ({ open, onClose, selectedEnrollment }) => {
                     Memorization Lesson Number
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     name="memorizationLessonNumber"
                     value={formData.memorizationLessonNumber}
                     onChange={handleInputChange}

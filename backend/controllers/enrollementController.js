@@ -83,7 +83,7 @@ const updateEnrollmentLink = asyncHandler(async(req, res) => {
 
 
 const AllEnrollments = asyncHandler(async (req, res) => {
-  const { filter } = req.query;
+  const { filter, page=1 } = req.query;
 
   // Get current day in Pakistan timezone
   const currentDay = moment().tz("Asia/Karachi").format("dddd"); // e.g. "Tuesday"
@@ -95,12 +95,24 @@ const AllEnrollments = asyncHandler(async (req, res) => {
     query = { "schedule.days": currentDay };
   }
 
-  const enrollments = await Enrollment.find(query)
+  const skip = (page - 1) * 10;
+
+  const [enrollments, total] = await Promise.all([
+
+    Enrollment.find(query)
     .populate("student", "name id")
     .populate("course", "name")
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(Number(10)),
 
-  res.status(StatusCodes.OK).json({ enrollments });
+    Enrollment.countDocuments(query)
+  ])
+
+  const totalPages = Math.ceil(total / 10)
+
+
+  res.status(StatusCodes.OK).json({ enrollments, pagination: {total, totalPages, currentPage: Number(page), pageSize: Number(10)} });
 });
 
 const AllEnrollmentsByToday = asyncHandler(async (req, res) => {
