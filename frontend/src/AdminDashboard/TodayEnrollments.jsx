@@ -139,6 +139,11 @@ export default function TodayEnrollments() {
                         >
                           <Edit2 className="w-4 h-4" />
                         </Link>
+                        <button
+                          className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -215,6 +220,13 @@ export default function TodayEnrollments() {
                     <Edit2 className="w-4 h-4" />
                     Edit
                   </Link>
+                  <button
+                    onClick={() => addLink(enrollment._id, enrollment.meet.time, enrollment.meet.link)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors font-medium text-sm"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </button>
                 </div>
               </div>
             </div>

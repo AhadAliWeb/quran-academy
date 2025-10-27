@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Search, Edit, Trash2, Plus, Users, AlertCircle, Loader } from 'lucide-react';
 import axios from "axios"
 import {Link} from "react-router"
+import ConfirmationDialog from '../components/ConfirmationDialog';
 
 const AllTeachers = () => {
   const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [dialog, setDialog] = useState(null);
+  const [teacherToDelete, setTeacherToDelete] = useState(null)
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
@@ -51,16 +54,31 @@ const searchTeachers = async (query) => {
 };
 
 // Delete teacher
-const deleteTeacher = async (id) => {
-  if (!window.confirm('Are you sure you want to delete this teacher?')) return;
+const handleDelete = (id) => {
 
-  try {
-    await axios.delete(`${API_BASE}/teachers/${id}`);
-    setTeachers(teachers.filter(teacher => teacher._id !== id));
-  } catch (err) {
-    setError(err.response?.data?.msg || 'Failed to delete teacher');
-  }
+  setDialog({type: 'delete', message: "Are you sure, You want to delete this teacher? "})
+
+
+  setTeacherToDelete(id)
+
+  // if (!window.confirm('Are you sure you want to delete this teacher?')) return;
 };
+
+const confirmDelete = async (confirm) => {
+  
+  if(confirm) {
+      try {
+      await axios.delete(`${API_BASE}/teachers/${teacherToDelete}`);
+      fetchTeachers()
+    } catch (err) {
+      setError(err.response?.data?.msg || 'Failed to delete teacher');
+    }
+  }
+
+  setTeacherToDelete(null)
+  setDialog(null)
+
+}
 
   // Handle search input change
   const handleSearchChange = (e) => {
@@ -76,13 +94,13 @@ const deleteTeacher = async (id) => {
   };
 
   // Get status badge color
-  const getStatusColor = (status) => {
+  const getGender = (status) => {
     switch (status?.toLowerCase()) {
-      case 'active':
+      case 'male':
         return 'bg-green-100 text-green-800';
       case 'inactive':
         return 'bg-red-100 text-red-800';
-      case 'pending':
+      case 'female':
         return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -96,6 +114,14 @@ const deleteTeacher = async (id) => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
+      {
+        dialog &&
+          <ConfirmationDialog
+              type={dialog.type}
+              message={dialog.message}
+              onConfirm={confirmDelete}
+          />
+      }
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
@@ -194,8 +220,8 @@ const deleteTeacher = async (id) => {
                           </p>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(teacher.status || 'active')}`}>
-                            {teacher.status || 'Active'}
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getGender(teacher.gender)}`}>
+                            {teacher.gender}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -204,7 +230,7 @@ const deleteTeacher = async (id) => {
                               <Edit className="w-4 h-4" />
                             </Link>
                             <button 
-                              onClick={() => deleteTeacher(teacher._id)}
+                              onClick={() => handleDelete(teacher._id)}
                               className="text-red-600 hover:text-red-800 p-1"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -235,8 +261,8 @@ const deleteTeacher = async (id) => {
                             <p className="text-sm text-gray-700">
                               <span className="font-medium">Salary:</span> {teacher.salary ? `$${teacher.salary.toLocaleString()}` : 'N/A'}
                             </p>
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(teacher.status || 'active')}`}>
-                              {teacher.status || 'Active'}
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getGender(teacher.gender)}`}>
+                              {teacher.gender}
                             </span>
                           </div>
                         </div>
@@ -246,7 +272,7 @@ const deleteTeacher = async (id) => {
                           <Edit className="w-4 h-4" />
                         </button>
                         <button 
-                          onClick={() => deleteTeacher(teacher._id)}
+                          onClick={() => handleDelete(teacher._id)}
                           className="text-red-600 hover:text-red-800 p-2"
                         >
                           <Trash2 className="w-4 h-4" />

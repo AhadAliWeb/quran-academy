@@ -114,7 +114,7 @@ export default function StudentList() {
                   <tr key={enrollment._id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{enrollment.student.name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{enrollment.student.studentId || `STU10${index + 1}`}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{enrollment.student.id}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{enrollment.course.name}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(enrollment.student.status)}`}>

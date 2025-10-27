@@ -189,27 +189,6 @@ const LoginPage = () => {
               )}
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember"
-                  name="remember"
-                  type="checkbox"
-                  className="h-4 w-4 text-teal-600 focus:ring-secondary border-gray-300 rounded"
-                />
-                <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div>
-              <button
-                type="button"
-                className="text-sm font-medium text-teal-600 hover:text-secondary transition-colors"
-              >
-                Forgot password?
-              </button>
-            </div>
-
             {/* Submit Button */}
             <button
               onClick={handleSubmit}
@@ -225,15 +204,6 @@ const LoginPage = () => {
                 'Sign In'
               )}
             </button>
-          </div>
-          {/* Footer */}
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <button className="font-medium text-teal-600 hover:text-teal-500 transition-colors">
-                Contact Support
-              </button>
-            </p>
           </div>
         </div>
       </div>

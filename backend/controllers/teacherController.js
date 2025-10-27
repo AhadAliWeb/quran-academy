@@ -24,7 +24,8 @@ const addNewTeacher = asyncHandler(async (req, res) => {
 
 // @desc Get all teachers
 const getAllTeachers = asyncHandler(async (req, res) => {
-  const teachers = await User.find({ role: "teacher" });
+  
+  const teachers = await User.find({ role: "teacher" }).select("-password")
 
   if (teachers.length === 0) throw new NotFoundError("No Teachers Found");
 
