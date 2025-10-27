@@ -82,8 +82,41 @@ const updateEnrollmentLink = asyncHandler(async(req, res) => {
 })
 
 
+// const AllEnrollments = asyncHandler(async (req, res) => {
+//   const { filter, page=1 } = req.query;
+
+//   // Get current day in Pakistan timezone
+//   const currentDay = moment().tz("Asia/Karachi").format("dddd"); // e.g. "Tuesday"
+
+//   let query = {};
+
+//   if (filter === "today") {
+//     // Only find enrollments where today is included in schedule.days array
+//     query = { "schedule.days": currentDay };
+//   }
+
+//   const skip = (page - 1) * 10;
+
+//   const [enrollments, total] = await Promise.all([
+
+//     Enrollment.find(query)
+//     .populate("student", "name id")
+//     .populate("course", "name")
+//     .sort({ createdAt: -1 })
+//     .skip(skip)
+//     .limit(Number(10)),
+
+//     Enrollment.countDocuments(query)
+//   ])
+
+//   const totalPages = Math.ceil(total / 10)
+
+
+//   res.status(StatusCodes.OK).json({ enrollments, pagination: {total, totalPages, currentPage: Number(page), pageSize: Number(10)} });
+// });
+
 const AllEnrollments = asyncHandler(async (req, res) => {
-  const { filter, page=1 } = req.query;
+  const { filter } = req.query;
 
   // Get current day in Pakistan timezone
   const currentDay = moment().tz("Asia/Karachi").format("dddd"); // e.g. "Tuesday"
@@ -95,24 +128,12 @@ const AllEnrollments = asyncHandler(async (req, res) => {
     query = { "schedule.days": currentDay };
   }
 
-  const skip = (page - 1) * 10;
-
-  const [enrollments, total] = await Promise.all([
-
-    Enrollment.find(query)
+  const enrollments = await Enrollment.find(query)
     .populate("student", "name id")
     .populate("course", "name")
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(Number(10)),
+    .sort({ createdAt: -1 });
 
-    Enrollment.countDocuments(query)
-  ])
-
-  const totalPages = Math.ceil(total / 10)
-
-
-  res.status(StatusCodes.OK).json({ enrollments, pagination: {total, totalPages, currentPage: Number(page), pageSize: Number(10)} });
+  res.status(StatusCodes.OK).json({ enrollments });
 });
 
 const AllEnrollmentsByToday = asyncHandler(async (req, res) => {
