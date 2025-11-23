@@ -204,6 +204,7 @@ const getEnrollmentByTime = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 });
 
   res.status(StatusCodes.OK).json({ enrollments });
+
 })
 
 
