@@ -1,4 +1,4 @@
-import { Home, Users, GraduationCap, BookPlus, UserPlus, FilePlus, UserRoundPlus, CheckCircle, BookOpen, ClipboardList } from 'lucide-react';
+import { Home, Users, GraduationCap, BookPlus, UserPlus, FilePlus, UserRoundPlus, CheckCircle, BookOpen, ClipboardList, List } from 'lucide-react';
 
 
 const ADMIN_BASE_PATH = "/admin/dashboard"
@@ -97,6 +97,12 @@ const adminLinks = [
         text: "Enrollments",
         icon: ClipboardList,
         to: `${ADMIN_BASE_PATH}/enrollments`
+    },
+    {
+        id: 'current-enrol',
+        text: "Current Enrollments",
+        icon: List,
+        to: `${ADMIN_BASE_PATH}/current-enrollments`
     }
 ];
 

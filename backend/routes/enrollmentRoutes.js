@@ -1,5 +1,5 @@
 const express = require("express")
-const { AddEnrollment, AllEnrollments, addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments, getEnrollmentByTeacher, getReportFields, updateEnrollmentLink, getSingleEnrollment, updateEnrollment, deleteEnrollment } = require("../controllers/enrollementController")
+const { AddEnrollment, AllEnrollments, addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments, getEnrollmentByTeacher, getReportFields, updateEnrollmentLink, getSingleEnrollment, updateEnrollment, deleteEnrollment, getEnrollmentByTime } = require("../controllers/enrollementController")
 const { protect, authorizePermissions } = require("../middleware/authMiddleware")
 const router = express.Router()
 
@@ -8,7 +8,9 @@ router.post('/', AddEnrollment)
 
 router.get('/', AllEnrollments)
 
-router.get('/abs', addBulkEnrollments)
+router.get('/abs', addBulkEnrollments);
+
+router.get('/time', protect, authorizePermissions("admin"), getEnrollmentByTime)
 
 router.get('/today', protect, authorizePermissions("teacher", "admin"), AllEnrollmentsByToday)
 

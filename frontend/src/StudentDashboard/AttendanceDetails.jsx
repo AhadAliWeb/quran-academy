@@ -1,33 +1,26 @@
-import React, { useState } from 'react';
-import { Calendar, CheckCircle, XCircle, Clock, Shield } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, CheckCircle, XCircle, Clock, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
+import axios from "axios";
+import { useParams } from 'react-router';
+import LoadingScreen from "../components/LoadingScreen";
 
 const AttendanceDetails = () => {
-  const [startDate, setStartDate] = useState('2024-09-01');
-  const [endDate, setEndDate] = useState('2024-09-30');
+  const [startDate, setStartDate] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [endDate, setEndDate] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const { enrollmentId } = useParams();
 
-  // Sample attendance data
-  const attendanceData = [
-    { id: 1, date: '2024-09-28', status: 'Online' },
-    { id: 2, date: '2024-09-27', status: 'Offline' },
-    { id: 3, date: '2024-09-26', status: 'Late' },
-    { id: 4, date: '2024-09-25', status: 'Online' },
-    { id: 5, date: '2024-09-24', status: 'Excused' },
-    { id: 6, date: '2024-09-23', status: 'Online' },
-    { id: 7, date: '2024-09-20', status: 'Late' },
-    { id: 8, date: '2024-09-19', status: 'Online' },
-    { id: 9, date: '2024-09-18', status: 'Offline' },
-    { id: 10, date: '2024-09-17', status: 'Online' },
-    { id: 11, date: '2024-09-16', status: 'Online' },
-    { id: 12, date: '2024-09-13', status: 'Late' },
-    { id: 13, date: '2024-09-12', status: 'Online' },
-    { id: 14, date: '2024-09-11', status: 'Offline' },
-    { id: 15, date: '2024-09-10', status: 'Online' },
-    { id: 16, date: '2024-09-09', status: 'Online' },
-    { id: 17, date: '2024-09-06', status: 'Excused' },
-    { id: 18, date: '2024-09-05', status: 'Online' },
-    { id: 19, date: '2024-09-04', status: 'Late' },
-    { id: 20, date: '2024-09-03', status: 'Online' },
-  ];
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalRecords: 0,
+    recordsPerPage: 10,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -59,12 +52,61 @@ const AttendanceDetails = () => {
     }
   };
 
-  const filteredData = attendanceData.filter(record => {
-    const recordDate = new Date(record.date);
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    return recordDate >= start && recordDate <= end;
-  });
+  const getAttendance = (page = currentPage) => {
+    setLoading(true);
+
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: recordsPerPage.toString(),
+    });
+
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+
+    axios
+      .get(`/api/v1/attendance/details/${enrollmentId}?${params.toString()}`)
+      .finally(() => setLoading(false))
+      .then((res) => {
+        setAttendanceData(res.data.attendances);
+        setPagination(res.data.pagination);
+        setCurrentPage(res.data.pagination.currentPage);
+      })
+      .catch((err) => {
+        setAttendanceData([]);
+        setPagination({
+          currentPage: 1,
+          totalPages: 1,
+          totalRecords: 0,
+          recordsPerPage: 10,
+          hasNextPage: false,
+          hasPrevPage: false,
+        });
+      });
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      getAttendance(newPage);
+    }
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    getAttendance(1);
+  };
+
+  const handleRecordsPerPageChange = (e) => {
+    setRecordsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  useEffect(() => {
+    getAttendance(1);
+  }, [recordsPerPage]);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
@@ -78,7 +120,7 @@ const AttendanceDetails = () => {
         {/* Date Range Filter */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-8">
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
+            <div className="flex-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -90,8 +132,8 @@ const AttendanceDetails = () => {
                 />
               </div>
             </div>
-            
-            <div className="flex-1">
+
+            <div className="flex-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -103,6 +145,31 @@ const AttendanceDetails = () => {
                 />
               </div>
             </div>
+
+            <div className="flex-1">
+              <button
+                className="py-3 px-5 bg-primary text-white rounded-md mt-5 hover:bg-primary-dark transition-colors"
+                onClick={handleSearch}
+              >
+                Search
+              </button>
+            </div>
+          </div>
+
+          {/* Records per page selector */}
+          <div className="mt-4 flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">Show:</label>
+            <select
+              value={recordsPerPage}
+              onChange={handleRecordsPerPageChange}
+              className="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+            <span className="text-sm text-gray-600">records per page</span>
           </div>
         </div>
 
@@ -116,27 +183,31 @@ const AttendanceDetails = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredData.length === 0 ? (
+              {attendanceData.length === 0 ? (
                 <tr>
                   <td colSpan="2" className="text-center py-12 text-gray-500">
                     No attendance records found for the selected date range.
                   </td>
                 </tr>
               ) : (
-                filteredData.map((record) => (
-                  <tr key={record.id} className="hover:bg-gray-50 transition-colors">
+                attendanceData.map((record) => (
+                  <tr key={record._id} className="hover:bg-gray-50 transition-colors">
                     <td className="py-4 px-6 text-gray-900 font-medium">
                       {new Date(record.date).toLocaleDateString('en-US', {
                         weekday: 'long',
                         year: 'numeric',
                         month: 'long',
-                        day: 'numeric'
+                        day: 'numeric',
                       })}
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         {getStatusIcon(record.status)}
-                        <span className={`px-4 py-2 rounded-full text-sm font-medium border ${getStatusBadgeClass(record.status)}`}>
+                        <span
+                          className={`px-4 py-2 rounded-full text-sm font-medium border ${getStatusBadgeClass(
+                            record.status
+                          )}`}
+                        >
                           {record.status}
                         </span>
                       </div>
@@ -146,37 +217,151 @@ const AttendanceDetails = () => {
               )}
             </tbody>
           </table>
+
+          {/* Pagination Controls - Desktop */}
+          {attendanceData.length > 0 && (
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                Showing {((currentPage - 1) * recordsPerPage) + 1} to{' '}
+                {Math.min(currentPage * recordsPerPage, pagination.totalRecords)} of{' '}
+                {pagination.totalRecords} results
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={!pagination.hasPrevPage}
+                  className={`px-3 py-2 rounded-lg flex items-center gap-1 text-sm font-medium transition-colors ${
+                    pagination.hasPrevPage
+                      ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {[...Array(pagination.totalPages)].map((_, index) => {
+                    const page = index + 1;
+                    if (
+                      page === 1 ||
+                      page === pagination.totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            page === currentPage
+                              ? 'bg-primary text-white'
+                              : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    } else if (page === currentPage - 2 || page === currentPage + 2) {
+                      return (
+                        <span key={page} className="px-2 text-gray-500">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={!pagination.hasNextPage}
+                  className={`px-3 py-2 rounded-lg flex items-center gap-1 text-sm font-medium transition-colors ${
+                    pagination.hasNextPage
+                      ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Mobile Cards View */}
         <div className="sm:hidden space-y-4">
-          {filteredData.length === 0 ? (
+          {attendanceData.length === 0 ? (
             <div className="bg-white rounded-xl p-8 text-center text-gray-500">
               No attendance records found for the selected date range.
             </div>
           ) : (
-            filteredData.map((record) => (
-              <div key={record.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900 mb-3">
-                      {new Date(record.date).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(record.status)}
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusBadgeClass(record.status)}`}>
-                        {record.status}
-                      </span>
+            <>
+              {attendanceData.map((record) => (
+                <div key={record._id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 mb-3">
+                        {new Date(record.date).toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(record.status)}
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusBadgeClass(
+                            record.status
+                          )}`}
+                        >
+                          {record.status}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
+              ))}
+
+              {/* Pagination Controls - Mobile */}
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                <div className="text-sm text-gray-600 text-center mb-4">
+                  Page {currentPage} of {pagination.totalPages} ({pagination.totalRecords} total)
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={!pagination.hasPrevPage}
+                    className={`px-4 py-2 rounded-lg flex items-center gap-1 text-sm font-medium transition-colors ${
+                      pagination.hasPrevPage
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Prev
+                  </button>
+
+                  <span className="px-4 py-2 text-sm font-medium text-gray-700">
+                    {currentPage}
+                  </span>
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={!pagination.hasNextPage}
+                    className={`px-4 py-2 rounded-lg flex items-center gap-1 text-sm font-medium transition-colors ${
+                      pagination.hasNextPage
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            ))
+            </>
           )}
         </div>
       </div>

@@ -16,7 +16,7 @@ const AttendanceSummary = () => {
 
       // Process data for charts
       const processedData = attendanceData.map(item => ({
-        courseId: item._id,
+        enrollmentId: item._id.enrollment,
         courseName: item.course.name,
         online: item.onlineCount,
         offline: item.offlineCount,
@@ -74,11 +74,10 @@ const AttendanceSummary = () => {
           </div>
           
           <button
-            onClick={() => handleSeeDetails(course.courseId, course.courseName)}
             className="mt-6 lg:mt-0 group/btn relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-            <Link to={`/dashboard/attendance-details/${course.courseId}`} className="relative flex items-center space-x-3">
+            <Link to={`/dashboard/attendance-details/${course.enrollmentId}`} className="relative flex items-center space-x-3">
               <Eye className="h-5 w-5" />
               <span>See Details</span>
             </Link>
@@ -216,7 +215,7 @@ const AttendanceSummary = () => {
             </div>
             
             {attendanceData.map((course, index) => (
-              <CourseCard key={course.courseId} course={course} index={index} />
+              <CourseCard key={course.enrollmentId} course={course} index={index} />
             ))}
           </div>
   )

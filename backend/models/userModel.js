@@ -57,6 +57,9 @@ const userSchema = mongoose.Schema(
       enum: ["Active", "Demo", "Left"],
       default: "Active"
     },
+    joiningDate: {
+      type: Date,
+    },
     fcmToken: {
       type: String
     }

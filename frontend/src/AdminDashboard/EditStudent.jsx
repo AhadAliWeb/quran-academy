@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Lock, Phone, Globe, Users, Save, DollarSign, CheckCircle } from 'lucide-react';
+import { User, Mail, Lock, Phone, Globe, Users, Save, DollarSign, CheckCircle, Calendar } from 'lucide-react';
 import { countries } from 'countries-list'
 import axios from 'axios';
 import { useParams } from "react-router"
@@ -17,6 +17,7 @@ const EditStudent = () => {
     country: '',
     gender: '',
     fees: '',
+    joiningDate: '',
     status: ''
   });
 
@@ -128,6 +129,12 @@ const EditStudent = () => {
       required: true,
       options: ['Active', 'Demo', 'Left'],
       validation: (value) => !value ? 'Please select a status' : null
+    },
+    {
+      id: 'joiningDate',
+      label: 'Joining Date',
+      type: 'date',
+      icon: Calendar,
     }
   ];
 

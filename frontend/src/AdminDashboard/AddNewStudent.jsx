@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mail, Lock, Phone, Globe, Users, Save, ArrowLeft, DollarSign } from 'lucide-react';
+import { User, Mail, Lock, Phone, Globe, Users, Save, ArrowLeft, DollarSign, Calendar, CheckCircle } from 'lucide-react';
 import { countries } from 'countries-list'
 import axios from 'axios';
 import { useAlert } from '../hooks/useAlert';
@@ -17,7 +17,9 @@ const AddStudentPage = () => {
     phoneNumber: '',
     country: '',
     gender: '',
-    fees: ''
+    fees: '',
+    status: '',
+    joiningDate: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -103,6 +105,22 @@ const AddStudentPage = () => {
       required: true,
       options: ['Male', 'Female'],
       validation: (value) => !value ? 'Please select a gender' : null
+    },
+    {
+      id: 'status',
+      label: 'Status',
+      type: 'select',
+      icon: CheckCircle,
+      placeholder: 'Select status',
+      required: true,
+      options: ['Active', 'Demo', 'Left'],
+      validation: (value) => !value ? 'Please select a status' : null
+    },
+    {
+      id: 'joiningDate',
+      label: 'Joining Date',
+      type: 'date',
+      icon: Calendar,
     }
   ];
 

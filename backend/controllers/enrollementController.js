@@ -6,33 +6,33 @@ const Attendance = require("../models/attendance");
 const Lesson = require("../models/Lesson");
 const moment = require("moment-timezone");
 
-const AddEnrollment  = asyncHandler(async(req, res) => {
+const AddEnrollment = asyncHandler(async (req, res) => {
 
-    const { student, teacher, course, days, duration, time} = req.body
+  const { student, teacher, course, days, duration, time } = req.body
 
-    const isEnrolled = await Enrollment.findOne({student, course});
+  const isEnrolled = await Enrollment.findOne({ student, course });
 
-    console.log(isEnrolled)
+  console.log(isEnrolled)
 
-    if(isEnrolled) throw new BadRequestError("Student is Already Enrolled")
+  if (isEnrolled) throw new BadRequestError("Student is Already Enrolled")
 
-    const enrollment = await Enrollment.create({ student, teacher, course, schedule: { days, duration, time } })
+  const enrollment = await Enrollment.create({ student, teacher, course, schedule: { days, duration, time } })
 
-    await enrollment.save()
+  await enrollment.save()
 
-    res.status(StatusCodes.OK).json({msg: "Enrollment Added Successfully"})
+  res.status(StatusCodes.OK).json({ msg: "Enrollment Added Successfully" })
 
 });
 
-const getSingleEnrollment = asyncHandler(async(req,res) => {
+const getSingleEnrollment = asyncHandler(async (req, res) => {
 
   const { enrollmentId } = req.params
 
   const enrollment = await Enrollment.findById(enrollmentId).populate("student").populate("teacher").populate("course")
 
-  if(!enrollment) throw new NotFoundError("No Enrollment Found")
+  if (!enrollment) throw new NotFoundError("No Enrollment Found")
 
-  res.status(StatusCodes.OK).json({enrollment, msg: "Enrollment Found Successfully"})
+  res.status(StatusCodes.OK).json({ enrollment, msg: "Enrollment Found Successfully" })
 });
 
 
@@ -44,28 +44,28 @@ const updateEnrollment = asyncHandler(async (req, res) => {
 
   const enrollment = await Enrollment.findById(enrollmentId)
 
-  if(!enrollment) throw new NotFoundError("Enrollment Not Found")
+  if (!enrollment) throw new NotFoundError("Enrollment Not Found")
 
-  
+
   enrollment.schedule = schedule;
 
   enrollment.meet = meet;
 
   await enrollment.save()
 
-  res.status(StatusCodes.OK).json({msg: "Enrollment Updated Successfully"})
+  res.status(StatusCodes.OK).json({ msg: "Enrollment Updated Successfully" })
 
 })
 
 
-const updateEnrollmentLink = asyncHandler(async(req, res) => {
+const updateEnrollmentLink = asyncHandler(async (req, res) => {
 
   const { enrollmentId, link } = req.body;
 
 
   const enrollment = await Enrollment.findById(enrollmentId)
 
-  if(!enrollment) throw new NotFoundError("No Courses Found")
+  if (!enrollment) throw new NotFoundError("No Courses Found")
 
   const meet = {
     link,
@@ -77,7 +77,7 @@ const updateEnrollmentLink = asyncHandler(async(req, res) => {
   await enrollment.save();
 
 
-  res.status(StatusCodes.OK).json({msg: "Link Updated Successfully"})
+  res.status(StatusCodes.OK).json({ msg: "Link Updated Successfully" })
 
 })
 
@@ -192,140 +192,154 @@ const AllEnrollmentsByToday = asyncHandler(async (req, res) => {
   });
 });
 
+const getEnrollmentByTime = asyncHandler(async (req, res) => {
+
+  const { startTime, endTime } = req.query;
+
+  const today = moment().tz("Asia/Karachi").format("dddd");
+
+  const enrollments = await Enrollment.find({ "schedule.time": { $gte: startTime, $lte: endTime }, "schedule.days": today })
+    .populate("student", "name id")
+    .populate("course", "name")
+    .sort({ createdAt: -1 });
+
+  res.status(StatusCodes.OK).json({ enrollments });
+})
 
 
-const addBulkEnrollments = asyncHandler(async(req, res) => {
 
-    const enrollments = [
-        {
-          "teacher": "68ca84854e6a6d62d1d0920a",
-          "student": "68ca81f1141081960a2cd99d",
-          "course": "68ca84ea4e6a6d62d1d0921b",
-          "schedule": {
-            "duration": 30,
-            "days": ["Monday", "Wednesday", "Saturday"],
-            "time": "15:00"
-          }
-        },
-        {
-          "teacher": "68ca84854e6a6d62d1d0920a",
-          "student": "68ca81f1141081960a2cd99e",
-          "course": "68ca84ea4e6a6d62d1d0921b",
-          "schedule": {
-            "duration": 30,
-            "days": ["Monday", "Wednesday", "Saturday"],
-            "time": "15:00"
-          }
-        },
-        {
-          "teacher": "68ca84854e6a6d62d1d0920a",
-          "student": "68ca81f1141081960a2cd99f",
-          "course": "68ca84ea4e6a6d62d1d0921b",
-          "schedule": {
-            "duration": 30,
-            "days": ["Monday", "Wednesday", "Saturday"],
-            "time": "15:00"
-          }
-        },
-        {
-          "teacher": "68ca84854e6a6d62d1d0920a",
-          "student": "68ca81f1141081960a2cd9a0",
-          "course": "68ca84ea4e6a6d62d1d0921b",
-          "schedule": {
-            "duration": 30,
-            "days": ["Monday", "Wednesday", "Saturday"],
-            "time": "15:00"
-          }
-        },
-        {
-          "teacher": "68ca84854e6a6d62d1d0920a",
-          "student": "68ca81f1141081960a2cd9a1",
-          "course": "68ca84ea4e6a6d62d1d0921b",
-          "schedule": {
-            "duration": 30,
-            "days": ["Monday", "Wednesday", "Saturday"],
-            "time": "15:00"
-          }
-        },
-        {
-          "teacher": "68ca84854e6a6d62d1d0920a",
-          "student": "68ca81f1141081960a2cd9a2",
-          "course": "68ca84ea4e6a6d62d1d0921b",
-          "schedule": {
-            "duration": 30,
-            "days": ["Monday", "Wednesday", "Saturday"],
-            "time": "15:00"
-          }
-        },
-        {
-          "teacher": "68ca84854e6a6d62d1d0920a",
-          "student": "68ca81f1141081960a2cd9a3",
-          "course": "68ca84ea4e6a6d62d1d0921b",
-          "schedule": {
-            "duration": 30,
-            "days": ["Monday", "Wednesday", "Saturday"],
-            "time": "15:00"
-          }
-        },
-        {
-          "teacher": "68ca84854e6a6d62d1d0920a",
-          "student": "68ca81f1141081960a2cd9a4",
-          "course": "68ca84ea4e6a6d62d1d0921b",
-          "schedule": {
-            "duration": 30,
-            "days": ["Monday", "Wednesday", "Saturday"],
-            "time": "15:00"
-          }
-        },
-        {
-          "teacher": "68ca84854e6a6d62d1d0920a",
-          "student": "68ca81f1141081960a2cd9a5",
-          "course": "68ca84ea4e6a6d62d1d0921b",
-          "schedule": {
-            "duration": 30,
-            "days": ["Monday", "Wednesday", "Saturday"],
-            "time": "15:00"
-          }
-        },
-        {
-          "teacher": "68ca84854e6a6d62d1d0920a",
-          "student": "68ca81f1141081960a2cd9a6",
-          "course": "68ca84ea4e6a6d62d1d0921b",
-          "schedule": {
-            "duration": 30,
-            "days": ["Monday", "Wednesday", "Saturday"],
-            "time": "15:00"
-          }
-        }
-      ]
+const addBulkEnrollments = asyncHandler(async (req, res) => {
 
-    const add = await Enrollment.insertMany(enrollments)
+  const enrollments = [
+    {
+      "teacher": "68ca84854e6a6d62d1d0920a",
+      "student": "68ca81f1141081960a2cd99d",
+      "course": "68ca84ea4e6a6d62d1d0921b",
+      "schedule": {
+        "duration": 30,
+        "days": ["Monday", "Wednesday", "Saturday"],
+        "time": "15:00"
+      }
+    },
+    {
+      "teacher": "68ca84854e6a6d62d1d0920a",
+      "student": "68ca81f1141081960a2cd99e",
+      "course": "68ca84ea4e6a6d62d1d0921b",
+      "schedule": {
+        "duration": 30,
+        "days": ["Monday", "Wednesday", "Saturday"],
+        "time": "15:00"
+      }
+    },
+    {
+      "teacher": "68ca84854e6a6d62d1d0920a",
+      "student": "68ca81f1141081960a2cd99f",
+      "course": "68ca84ea4e6a6d62d1d0921b",
+      "schedule": {
+        "duration": 30,
+        "days": ["Monday", "Wednesday", "Saturday"],
+        "time": "15:00"
+      }
+    },
+    {
+      "teacher": "68ca84854e6a6d62d1d0920a",
+      "student": "68ca81f1141081960a2cd9a0",
+      "course": "68ca84ea4e6a6d62d1d0921b",
+      "schedule": {
+        "duration": 30,
+        "days": ["Monday", "Wednesday", "Saturday"],
+        "time": "15:00"
+      }
+    },
+    {
+      "teacher": "68ca84854e6a6d62d1d0920a",
+      "student": "68ca81f1141081960a2cd9a1",
+      "course": "68ca84ea4e6a6d62d1d0921b",
+      "schedule": {
+        "duration": 30,
+        "days": ["Monday", "Wednesday", "Saturday"],
+        "time": "15:00"
+      }
+    },
+    {
+      "teacher": "68ca84854e6a6d62d1d0920a",
+      "student": "68ca81f1141081960a2cd9a2",
+      "course": "68ca84ea4e6a6d62d1d0921b",
+      "schedule": {
+        "duration": 30,
+        "days": ["Monday", "Wednesday", "Saturday"],
+        "time": "15:00"
+      }
+    },
+    {
+      "teacher": "68ca84854e6a6d62d1d0920a",
+      "student": "68ca81f1141081960a2cd9a3",
+      "course": "68ca84ea4e6a6d62d1d0921b",
+      "schedule": {
+        "duration": 30,
+        "days": ["Monday", "Wednesday", "Saturday"],
+        "time": "15:00"
+      }
+    },
+    {
+      "teacher": "68ca84854e6a6d62d1d0920a",
+      "student": "68ca81f1141081960a2cd9a4",
+      "course": "68ca84ea4e6a6d62d1d0921b",
+      "schedule": {
+        "duration": 30,
+        "days": ["Monday", "Wednesday", "Saturday"],
+        "time": "15:00"
+      }
+    },
+    {
+      "teacher": "68ca84854e6a6d62d1d0920a",
+      "student": "68ca81f1141081960a2cd9a5",
+      "course": "68ca84ea4e6a6d62d1d0921b",
+      "schedule": {
+        "duration": 30,
+        "days": ["Monday", "Wednesday", "Saturday"],
+        "time": "15:00"
+      }
+    },
+    {
+      "teacher": "68ca84854e6a6d62d1d0920a",
+      "student": "68ca81f1141081960a2cd9a6",
+      "course": "68ca84ea4e6a6d62d1d0921b",
+      "schedule": {
+        "duration": 30,
+        "days": ["Monday", "Wednesday", "Saturday"],
+        "time": "15:00"
+      }
+    }
+  ]
 
-    res.status(StatusCodes.OK).json("Enrollments Added Successfully")
+  const add = await Enrollment.insertMany(enrollments)
+
+  res.status(StatusCodes.OK).json("Enrollments Added Successfully")
 
 });
 
 
-const displayStudentEnrollments = asyncHandler(async(req, res) => {
+const displayStudentEnrollments = asyncHandler(async (req, res) => {
 
   const { studentId } = req.params;
 
-  const courses = await Enrollment.find({ student: studentId}).select("_id meet").populate("course")
+  const courses = await Enrollment.find({ student: studentId }).select("_id meet").populate("course")
 
-  if(courses.length === 0) throw new NotFoundError("No Courses Found")
+  if (courses.length === 0) throw new NotFoundError("No Courses Found")
 
-    res.status(StatusCodes.OK).json({msg: "Courses Founded Successfully", courses})
+  res.status(StatusCodes.OK).json({ msg: "Courses Founded Successfully", courses })
 });
 
-const getEnrollmentByTeacher = asyncHandler(async(req, res) => {
+const getEnrollmentByTeacher = asyncHandler(async (req, res) => {
 
 
   const { teacherId } = req.params;
   const enrollments = await Enrollment.find({ teacher: teacherId }).select("-schedule").populate("course", "name").populate("student", "name id status")
 
-  if(enrollments.length === 0) throw new NotFoundError("Enrollments Not Found")
+  if (enrollments.length === 0) throw new NotFoundError("Enrollments Not Found")
 
-  res.status(StatusCodes.OK).json({msg: "Enrollments Found Successfully", enrollments})
+  res.status(StatusCodes.OK).json({ msg: "Enrollments Found Successfully", enrollments })
 });
 
 
@@ -335,32 +349,31 @@ const getReportFields = asyncHandler(async (req, res) => {
 
   const enrollment = await Enrollment.findById(id).select("course").populate("course", "reportFields")
 
-  if(!enrollment) throw new NotFoundError("Course Not Found")
+  if (!enrollment) throw new NotFoundError("Course Not Found")
 
-  res.status(StatusCodes.OK).json({msg: "Fields received Successfully", course: enrollment.course})
+  res.status(StatusCodes.OK).json({ msg: "Fields received Successfully", course: enrollment.course })
 
 })
 
-const deleteEnrollment = asyncHandler(async (req,res) => {
+const deleteEnrollment = asyncHandler(async (req, res) => {
 
   const { enrollmentId } = req.params;
 
   const enrollment = await Enrollment.findById(enrollmentId)
 
-  if(!enrollment) {
+  if (!enrollment) {
     throw new NotFoundError("Enrollment Not Found")
-  } 
+  }
 
-  await Lesson.deleteMany({enrollment: enrollmentId})
+  await Lesson.deleteMany({ enrollment: enrollmentId })
 
-  await Attendance.deleteMany({enrollment: enrollmentId})
-
+  await Attendance.deleteMany({ enrollment: enrollmentId })
 
   await enrollment.deleteOne()
 
-  res.status(StatusCodes.OK).json({msg: "Enrollment Deleted Successfully"})
+  res.status(StatusCodes.OK).json({ msg: "Enrollment Deleted Successfully" })
 
 })
 
 
-module.exports = { AddEnrollment, getSingleEnrollment, AllEnrollments, updateEnrollmentLink, updateEnrollment,  addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments, getEnrollmentByTeacher, getReportFields, deleteEnrollment }
+module.exports = { AddEnrollment, getSingleEnrollment, AllEnrollments, updateEnrollmentLink, updateEnrollment, addBulkEnrollments, AllEnrollmentsByToday, displayStudentEnrollments, getEnrollmentByTeacher, getReportFields, deleteEnrollment, getEnrollmentByTime }

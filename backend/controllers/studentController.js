@@ -11,7 +11,7 @@ const Lesson = require("../models/Lesson");
 
 // Create a new student
 const createStudent = asyncHandler(async (req, res) => {
-  const { studentName, email, password, fees, phoneNumber, country, gender, age } = req.body;
+  const { studentName, email, password, fees, phoneNumber, country, gender, age, status, joiningDate } = req.body;
 
   let count;
 
@@ -46,6 +46,8 @@ const createStudent = asyncHandler(async (req, res) => {
     gender,
     country,
     age,
+    status,
+    joiningDate
   });
 
   await user.save()
@@ -110,7 +112,7 @@ const getStudentById = asyncHandler(async (req, res) => {
 const updateStudent = asyncHandler(async (req, res) => {
 
   const { id } = req.params;
-  const { name, email, password, fees, age, phoneNumber, country, gender, status } = req.body;
+  const { name, email, password, fees, age, phoneNumber, country, gender, status, joiningDate } = req.body;
 
 
   const student = await User.findOne({ _id: id, role: "student" });
@@ -127,6 +129,7 @@ const updateStudent = asyncHandler(async (req, res) => {
   if (country) student.country = country;
   if (gender) student.gender = gender;
   if (status) student.status = status;
+  if (joiningDate) student.joiningDate = joiningDate;
 
   // Only update password if it's provided
   if (password) {
