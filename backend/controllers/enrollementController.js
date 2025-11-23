@@ -12,8 +12,6 @@ const AddEnrollment = asyncHandler(async (req, res) => {
 
   const isEnrolled = await Enrollment.findOne({ student, course });
 
-  console.log(isEnrolled)
-
   if (isEnrolled) throw new BadRequestError("Student is Already Enrolled")
 
   const enrollment = await Enrollment.create({ student, teacher, course, schedule: { days, duration, time } })
